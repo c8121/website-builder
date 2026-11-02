@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <meta name="description" content="Website builder"/>
+    <meta name="author" content="c8121"/>
+
+    <title>:) Asset Storage</title>
+    <link rel="icon" type="image/x-icon" href="ui-assets/favicon.ico"/>
+
+    <link href="css/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/boostrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="css/app.css" rel="stylesheet"/>
+    <link href="css/assets.css" rel="stylesheet"/>
+
+    <script type="importmap">
+        {
+          "imports": {
+            "vue": "./js/vue-3.5.41/vue.esm-browser.js",
+            "vue-router": "./js/vue-router-5.2.0/vue-router.esm-browser.prod.js"
+          }
+        }
+    </script>
+
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- Menu-->
+    <nav id="mainNav">
+        <a class="navbar-brand" href="#">
+            <span class="d-block">:) Website builder</span>
+        </a>
+    </nav>
+
+
+    <!-- Content-->
+    <div class="container-fluid p-0" id="mainContent">
+
+        <section>
+
+            <router-view v-slot="{ Component }">
+                <component ref="listView" :is="Component" @component-event="componentEvent" :filter="listFilter"/>
+            </router-view>
+
+        </section>
+
+    </div>
+
+</div>
+
+<!-- Main App -->
+<script type="module">
+
+    import {createApp, ref} from 'vue'
+    import {createWebHashHistory, createRouter} from 'vue-router'
+
+    //import AssetListView from './js/asset-list.vue.js'
+
+    const routes = [
+       // {path: '/', component: AssetListView},
+    ];
+
+    export const router = createRouter({
+        history: createWebHashHistory(),
+        routes
+    });
+
+    createApp({
+
+        data() {
+            return {
+                notifications: []
+            }
+        },
+
+        methods: {
+
+            componentEvent(eventName, sender) {
+                switch (eventName) {
+                    default: {
+                        console.log("Event not handled: '" + eventName + "', " + arguments.length + " arguments, sender: " + sender);
+                        console.log(arguments);
+                    }
+                }
+            },
+
+            loadNotifications() {
+                const self = this;
+                const requestOptions = {
+                    method: 'GET'
+                }
+                fetch('/notifications', requestOptions)
+                    .then(res => res.json())
+                    .then(json => {
+                        self.notifications.splice(0, self.notifications.length);
+                        for (const msg of json) {
+                            self.notifications.push(msg);
+                        }
+                    });
+            },
+        },
+
+        mounted() {
+            this.loadNotifications();
+        }
+    })
+        //.component('asset-view', AssetView)
+        .use(router)
+        .mount('#app');
+
+</script>
+
+<!-- UI Scripts -->
+<script src="css/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
