@@ -7,7 +7,7 @@ import (
 	assetstoragehttproot "github.com/c8121/asset-storage/shared/httproot"
 	"github.com/c8121/go_vue_spa"
 	"github.com/c8121/go_vue_spa/httproot"
-	"github.com/c8121/website-builder/internal/config"
+	"github.com/c8121/website-builder/shared/config"
 	apphttproot "github.com/c8121/website-builder/shared/httproot"
 	"github.com/gin-gonic/gin"
 )
@@ -17,8 +17,8 @@ func CreateRoutes(router *gin.Engine) {
 
 	//APP resources
 	var rootFS fs.FS
-	if config.SpaHttpRoot != "" {
-		rootFS = os.DirFS(config.SpaHttpRoot)
+	if config.AppConfig.SpaHttpRoot != "" {
+		rootFS = os.DirFS(config.AppConfig.SpaHttpRoot)
 	} else {
 		rootFS = apphttproot.FS
 	}
