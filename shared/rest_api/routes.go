@@ -12,5 +12,6 @@ func CreateRoutes(router *gin.Engine) {
 
 	router.GET("/page/:id", auth.UserAuthRequiredHandler(GetPage))
 	router.POST("/page/add", auth.UserAuthRequiredHandler(AddPage))
+	router.POST("/page/delete", auth.UserAuthRequiredHandler(DeletePage))
 
 }

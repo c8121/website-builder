@@ -93,3 +93,29 @@ func AddPage(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, req)
 }
+
+func DeletePage(c *gin.Context) {
+
+	id, err := strconv.ParseInt(c.PostForm("id"), 10, 64)
+	if err != nil {
+		util.AboutWithStatus(c, http.StatusBadRequest, "missing id", err)
+		return
+	}
+
+	page := &entity.Page{}
+	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(id))
+	if err != nil {
+		util.AboutWithStatus(c, http.StatusNotFound, "failed to load page", err)
+		return
+	}
+
+	err = go_db_entities.Delete(entity.DbContext, page)
+	if err != nil {
+		util.AboutWithStatus(c, http.StatusInternalServerError, "failed to delete page", err)
+	}
+
+	c.IndentedJSON(http.StatusOK, &util.Response{
+		Status:  "ok",
+		Message: "Page deleted",
+	})
+}

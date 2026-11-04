@@ -17,6 +17,7 @@ export default {
 
                 <div class="mt-4">
                     <button class="btn btn-primary" @click="savePage">Save</button>
+                    <button v-if="page.Id" class="btn btn-outline-danger ms-2" @click="deletePage">Delete</button>
                 </div>
             </div>
 
@@ -108,6 +109,33 @@ export default {
                     }
                 });
         },
+
+        deletePage() {
+            const self = this;
+            if(!self.page)
+                return;
+
+            if(!confirm("Delete?"))
+                return;
+
+            const requestParams = {
+                method: 'POST',
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "id=" + encodeURI(self.page.Id)
+            }
+            fetch('/page/delete', requestParams)
+                .then(res => res.json())
+                .then(json => {
+                    if( json.Status && json.Status === 'ok' ) {
+                        self.page = null
+                        this.$emit('componentEvent', 'pageDeleted', 'page-view', json);
+                    } else if(json.Message) {
+                        alert(json.Message)
+                    }
+                });
+        },
+
+
 
         treeEvent() {
             console.log(arguments);

@@ -7,7 +7,7 @@ export default {
                     <button class="form-control" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <i class="bi bi-folder-fill"></i><span v-if="page">{{page.Name}}</span>
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu ps-3">
                         <page-tree ref="pageTree" @component-event="componentEvent" />
                     </div>
                     <button v-if="page" @click="clearValue" class="btn border"><i class="bi bi-x-circle"></i></button>
