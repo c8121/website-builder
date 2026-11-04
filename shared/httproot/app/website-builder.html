@@ -111,6 +111,12 @@
                         break;
                     }
 
+                    case 'pageDeleted': {
+                        location.hash = '/';
+                        this.$refs.pageTree.reload();
+                        break;
+                    }
+
                     default: {
                         console.log("Event not handled: '" + eventName + "', " + arguments.length + " arguments, sender: " + sender);
                         console.log(arguments);

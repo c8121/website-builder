@@ -30,8 +30,9 @@ export default {
     watch: {
         modelValue: {
             handler(newValue) {
-                if(!this.page || this.page.Id !== newValue)
+                if(!this.page || this.page.Id !== newValue) {
                     this.loadPage(newValue);
+                }
             },
             immediate: true
         }
@@ -47,6 +48,11 @@ export default {
 
         loadPage(id) {
             const self = this;
+
+            if(self.$refs.pageTree) {
+                self.$refs.pageTree.reload();
+            }
+
             if(!id) {
                 self.page = null;
                 return;
@@ -63,12 +69,15 @@ export default {
                     } else {
                         this.$emit('update:modelValue', 0);
                     }
-                    console.log(json);
                 });
         },
 
         clearValue() {
             this.$emit('update:modelValue', 0);
+        },
+
+        reloadPageTree() {
+            this.$refs.pageTree.reload();
         },
 
         componentEvent(eventName, sender) {

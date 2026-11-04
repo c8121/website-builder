@@ -1,18 +1,37 @@
+import {defineAsyncComponent, nextTick} from 'vue'
+
 export default {
+
+    components: {
+        TextEditor: defineAsyncComponent(() => import('./content-editor/text.vue.js')),
+        TestEditor: defineAsyncComponent(() => import('./content-editor/test.vue.js'))
+    },
+
     template: `
         <div>
             <h1>PageView</h1>
             <pre>{{ page }}</pre>
-
+            
             <div v-if="page">
 
                 <div class="mb-2">
-                    <page-select v-model="page.ParentId" label="Parent" @component-event="treeEvent" />
+                    <page-select v-model="page.ParentId" ref="pageSelect" label="Parent" @component-event="treeEvent" />
                 </div>
 
-                <div class="input-group">
+                <div class="input-group mb-2">
                     <label class="input-group-text">Name</label>
                     <input v-model="page.Name" class="form-control">
+                </div>
+                
+                <div>
+                    <select v-model="selectedEditor" class="form-select">
+                        <option :value="null"></option>
+                        <option v-for="editor in availableEditors" :value="editor">{{ editor.name }}</option>
+                    </select>
+                </div>
+                
+                <div class="mt-4">
+                    <component :is="selectedEditor ? selectedEditor.component : null" ref="editor" @vue:mounted="editorReady"></component>
                 </div>
 
                 <div class="mt-4">
@@ -37,7 +56,12 @@ export default {
 
     data() {
         return {
-            page: null
+            page: null,
+            availableEditors: [
+                {name: 'Text', component: 'TextEditor'},
+                {name: 'Test', component: 'TestEditor'}
+            ],
+            selectedEditor: null
         }
     },
 
@@ -59,12 +83,12 @@ export default {
         loadPage() {
             const self = this;
 
-            if(self.parentId) {
+            if (self.parentId) {
                 self.createPage();
                 return;
             }
 
-            if(!self.id)
+            if (!self.id)
                 return;
 
             const requestOptions = {
@@ -73,25 +97,68 @@ export default {
             fetch('/page/' + self.id, requestOptions)
                 .then(res => res.json())
                 .then(json => {
-                    self.page = json;
+                    if (json.Id) {
+                        self.page = json;
+                        self.loadEditor();
+                    } else {
+                        alert(json)
+                    }
+                    if (self.$refs.pageSelect)
+                        self.$refs.pageSelect.reloadPageTree();
                 });
         },
 
         createPage() {
             const self = this;
-            if(!self.parentId)
+            if (!self.parentId)
                 return;
 
             self.page = {
                 ParentId: parseInt(self.parentId),
-                Name: "New Page"
+                Name: "New Page",
+                ContentType: "Text",
+                Content: ""
             }
+
+            self.loadEditor();
+
+            if (self.$refs.pageSelect)
+                self.$refs.pageSelect.reloadPageTree();
+        },
+
+        loadEditor() {
+            const self = this;
+
+            if (!self.page.ContentType) {
+                console.log("No ContentType given");
+                return;
+            }
+
+            self.selectedEditor = self.getEditorByName(self.page.ContentType);
+        },
+
+        editorReady() {
+            this.$refs.editor.setContent(this.page.Content);
+        },
+
+        getEditorByName(name) {
+            for (const editor of this.availableEditors) {
+                if (name === editor.name)
+                    return editor;
+            }
+            console.log("No such editor: " + name);
+            return null;
         },
 
         savePage() {
             const self = this;
-            if(!self.page)
+            if (!self.page)
                 return;
+
+            if (self.selectedEditor) {
+                self.page.ContentType = self.selectedEditor.name;
+                self.page.Content = self.$refs.editor.getContent();
+            }
 
             const requestParams = {
                 method: 'POST',
@@ -101,10 +168,10 @@ export default {
             fetch('/page/add', requestParams)
                 .then(res => res.json())
                 .then(json => {
-                    if( json.Id) {
+                    if (json.Id) {
                         self.page = json
                         this.$emit('componentEvent', 'pageSaved', 'page-view', self.page);
-                    } else if(json.Message) {
+                    } else if (json.Message) {
                         alert(json.Message)
                     }
                 });
@@ -112,10 +179,10 @@ export default {
 
         deletePage() {
             const self = this;
-            if(!self.page)
+            if (!self.page)
                 return;
 
-            if(!confirm("Delete?"))
+            if (!confirm("Delete?"))
                 return;
 
             const requestParams = {
@@ -126,16 +193,14 @@ export default {
             fetch('/page/delete', requestParams)
                 .then(res => res.json())
                 .then(json => {
-                    if( json.Status && json.Status === 'ok' ) {
+                    if (json.Status && json.Status === 'ok') {
                         self.page = null
                         this.$emit('componentEvent', 'pageDeleted', 'page-view', json);
-                    } else if(json.Message) {
+                    } else if (json.Message) {
                         alert(json.Message)
                     }
                 });
         },
-
-
 
         treeEvent() {
             console.log(arguments);

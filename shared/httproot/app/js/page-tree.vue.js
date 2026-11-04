@@ -54,7 +54,8 @@ export default {
             const requestOptions = {
                 method: 'GET'
             }
-            fetch('/pages/list/' + self.value, requestOptions)
+            const parentId = self.value ? self.value : 0;
+            fetch('/pages/list/' + parentId, requestOptions)
                 .then(res => res.json())
                 .then(json => {
                     self.list.splice(0, self.list.length);

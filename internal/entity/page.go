@@ -8,10 +8,12 @@ import (
 )
 
 type Page struct {
-	Id       int64
-	ParentId int64  `dbe:"Index"`
-	Name     string `dbe:"Size: 1024, Index"`
-	Sort     int64
+	Id          int64
+	ParentId    int64  `dbe:"Index"`
+	Name        string `dbe:"Size: 1024, Index"`
+	ContentType string
+	Content     string
+	Sort        int64
 }
 
 func (p *Page) GetEntityName() string {
