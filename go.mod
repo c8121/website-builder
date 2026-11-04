@@ -4,7 +4,8 @@ go 1.26.0
 
 require (
 	github.com/c8121/asset-storage v0.0.1
-	github.com/c8121/go_vue_spa v0.0.2
+	github.com/c8121/go_db_entities v0.0.9
+	github.com/c8121/go_vue_spa v0.0.3
 	github.com/gin-gonic/gin v1.12.0
 )
 
@@ -34,7 +35,6 @@ require (
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.5 // indirect
 	github.com/bytedance/sonic/loader v0.5.3 // indirect
-	github.com/c8121/go_db_entities v0.0.8 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
@@ -82,5 +82,6 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_vue_spa v0.0.1 => ../go_vue_spa
+	github.com/c8121/go_db_entities v0.0.8 => ../go_db_entities
+	github.com/c8121/go_vue_spa v0.0.3 => ../go_vue_spa
 )

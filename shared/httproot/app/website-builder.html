@@ -7,7 +7,7 @@
     <meta name="description" content="Website builder"/>
     <meta name="author" content="c8121"/>
 
-    <title>:) Asset Storage</title>
+    <title>:) Website Builder</title>
     <link rel="icon" type="image/x-icon" href="ui-assets/favicon.ico"/>
 
     <link href="css/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -35,6 +35,18 @@
         <a class="navbar-brand" href="#">
             <span class="d-block">:) Website builder</span>
         </a>
+
+        <div class="row mt-lg-4">
+            <div class="col-sm-8 pb-2">
+                <page-tree ref="pageTree" @component-event="componentEvent" />
+            </div>
+        </div>
+
+        <div class="row mt-lg-4">
+            <div class="col-sm-8 pb-2">
+                <button @click="addPage" class="btn">Add page</button>
+            </div>
+        </div>
     </nav>
 
 
@@ -44,7 +56,7 @@
         <section>
 
             <router-view v-slot="{ Component }">
-                <component ref="listView" :is="Component" @component-event="componentEvent" :filter="listFilter"/>
+                <component ref="mainView" :is="Component" @component-event="componentEvent" />
             </router-view>
 
         </section>
@@ -59,10 +71,13 @@
     import {createApp, ref} from 'vue'
     import {createWebHashHistory, createRouter} from 'vue-router'
 
-    //import AssetListView from './js/asset-list.vue.js'
+    import PageTree from './js/page-tree.vue.js'
+    import PageView from './js/page-view.vue.js'
+    import PageSelect from './js/page-select.vue.js'
 
     const routes = [
-       // {path: '/', component: AssetListView},
+        {path: '/page/:id', component: PageView, props: true},
+        {path: '/page/new/:parentId', component: PageView, props: true},
     ];
 
     export const router = createRouter({
@@ -82,6 +97,20 @@
 
             componentEvent(eventName, sender) {
                 switch (eventName) {
+
+                    case 'pageClick': {
+                        const page = arguments[2]
+                        location.hash = '/page/' + page.Id;
+                        break;
+                    }
+
+                    case 'pageSaved': {
+                        const page = arguments[2]
+                        location.hash = '/page/' + page.Id;
+                        this.$refs.pageTree.reload();
+                        break;
+                    }
+
                     default: {
                         console.log("Event not handled: '" + eventName + "', " + arguments.length + " arguments, sender: " + sender);
                         console.log(arguments);
@@ -103,13 +132,18 @@
                         }
                     });
             },
+
+            addPage() {
+                location.hash = '/page/new/0';
+            }
         },
 
         mounted() {
             this.loadNotifications();
         }
     })
-        //.component('asset-view', AssetView)
+        .component('page-tree', PageTree)
+        .component('page-select', PageSelect)
         .use(router)
         .mount('#app');
 
