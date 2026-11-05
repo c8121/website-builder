@@ -77,6 +77,10 @@
     import PageContentView from './js/page-content-view.vue.js'
     import PageContentList from './js/page-content-list.vue.js'
 
+    import Dialog from './js/dialog.js'
+
+    import AssetStorageMain from './js/asset-storage-main.vue.js'
+
     const routes = [
         {path: '/page/:id', component: PageView, props: true},
         {path: '/page/new/:parentId', component: PageView, props: true},
@@ -158,6 +162,23 @@
 
             addPage() {
                 location.hash = '/page/new/0';
+
+                const response = fetch(new URL('./js/asset-storage-main.tpl.html', import.meta.url))
+                    .then(response => response.text())
+                    .then(html => {
+                        AssetStorageMain.template = html;
+
+
+                        const dialog = Dialog.create();
+                        dialog.setTitle("Test dialog");
+                        dialog.setContentComponent(AssetStorageMain, {
+                            downloadCallback: (url) => {
+                                console.log("Asset selected", url);
+                                dialog.close();
+                            }
+                        });        
+                    });
+                
             }
         },
 

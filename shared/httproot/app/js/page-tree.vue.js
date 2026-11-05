@@ -1,6 +1,9 @@
 import { nextTick } from 'vue'
 
 export default {
+
+    name: 'page-tree',
+
     template: `
         <div>
             <div v-for="item in list" class="text-nowrap text-start">
