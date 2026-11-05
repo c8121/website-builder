@@ -82,6 +82,6 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_db_entities v0.0.8 => ../go_db_entities
+	github.com/c8121/go_db_entities v0.0.9 => ../go_db_entities
 	github.com/c8121/go_vue_spa v0.0.3 => ../go_vue_spa
 )

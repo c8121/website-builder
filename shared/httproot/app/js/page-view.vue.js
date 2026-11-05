@@ -1,11 +1,5 @@
-import {defineAsyncComponent, nextTick} from 'vue'
-
 export default {
 
-    components: {
-        TextEditor: defineAsyncComponent(() => import('./content-editor/text.vue.js')),
-        TestEditor: defineAsyncComponent(() => import('./content-editor/test.vue.js'))
-    },
 
     template: `
         <div>
@@ -24,14 +18,10 @@ export default {
                 </div>
                 
                 <div>
-                    <select v-model="selectedEditor" class="form-select">
-                        <option :value="null"></option>
-                        <option v-for="editor in availableEditors" :value="editor">{{ editor.name }}</option>
-                    </select>
-                </div>
-                
-                <div class="mt-4">
-                    <component :is="selectedEditor ? selectedEditor.component : null" ref="editor" @vue:mounted="editorReady"></component>
+                    <page-content-list :value="page.Id" ref="contentList" @component-event="listEvent" />
+                    <div>
+                        <button class="btn btn-sm btn-secondary" @click="addContent"><i class="bi bi-file-earmark-plus"></i> Add</button>
+                    </div>
                 </div>
 
                 <div class="mt-4">
@@ -56,12 +46,7 @@ export default {
 
     data() {
         return {
-            page: null,
-            availableEditors: [
-                {name: 'Text', component: 'TextEditor'},
-                {name: 'Test', component: 'TestEditor'}
-            ],
-            selectedEditor: null
+            page: null
         }
     },
 
@@ -99,7 +84,6 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.page = json;
-                        self.loadEditor();
                     } else {
                         alert(json)
                     }
@@ -115,39 +99,11 @@ export default {
 
             self.page = {
                 ParentId: parseInt(self.parentId),
-                Name: "New Page",
-                ContentType: "Text",
-                Content: ""
+                Name: "New Page"
             }
-
-            self.loadEditor();
 
             if (self.$refs.pageSelect)
                 self.$refs.pageSelect.reloadPageTree();
-        },
-
-        loadEditor() {
-            const self = this;
-
-            if (!self.page.ContentType) {
-                console.log("No ContentType given");
-                return;
-            }
-
-            self.selectedEditor = self.getEditorByName(self.page.ContentType);
-        },
-
-        editorReady() {
-            this.$refs.editor.setContent(this.page.Content);
-        },
-
-        getEditorByName(name) {
-            for (const editor of this.availableEditors) {
-                if (name === editor.name)
-                    return editor;
-            }
-            console.log("No such editor: " + name);
-            return null;
         },
 
         savePage() {
@@ -202,9 +158,18 @@ export default {
                 });
         },
 
+        addContent() {
+            this.$emit('componentEvent', 'addContent', 'page-view', this.page);
+        },
+
         treeEvent() {
-            console.log(arguments);
-        }
+            this.$emit('componentEvent', arguments[0], arguments[1], arguments[2]);
+        },
+
+        listEvent() {
+            this.$emit('componentEvent', arguments[0], arguments[1], arguments[2]);
+        },
+
     },
 
     emits: ['componentEvent'],

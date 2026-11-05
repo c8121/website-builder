@@ -10,6 +10,7 @@ func CheckCreateTables() {
 
 	entities := []go_db_entities.Entity{
 		&Page{},
+		&PageContent{},
 	}
 
 	for _, entity := range entities {

@@ -14,4 +14,10 @@ func CreateRoutes(router *gin.Engine) {
 	router.POST("/page/add", auth.UserAuthRequiredHandler(AddPage))
 	router.POST("/page/delete", auth.UserAuthRequiredHandler(DeletePage))
 
+	router.GET("/content/list/:page", auth.UserAuthRequiredHandler(ListPageContents))
+
+	router.GET("/content/:id", auth.UserAuthRequiredHandler(GetPageContent))
+	router.POST("/content/add", auth.UserAuthRequiredHandler(AddPageContent))
+	router.POST("/content/delete", auth.UserAuthRequiredHandler(DeletePageContent))
+
 }

@@ -74,10 +74,15 @@
     import PageTree from './js/page-tree.vue.js'
     import PageView from './js/page-view.vue.js'
     import PageSelect from './js/page-select.vue.js'
+    import PageContentView from './js/page-content-view.vue.js'
+    import PageContentList from './js/page-content-list.vue.js'
 
     const routes = [
         {path: '/page/:id', component: PageView, props: true},
         {path: '/page/new/:parentId', component: PageView, props: true},
+
+        {path: '/content/:id', component: PageContentView, props: true},
+        {path: '/content/new/:pageId', component: PageContentView, props: true},
     ];
 
     export const router = createRouter({
@@ -117,6 +122,18 @@
                         break;
                     }
 
+                    case 'pageContentClick': {
+                        const content = arguments[2]
+                        location.hash = '/content/' + content.Id;
+                        break;
+                    }
+
+                    case 'addContent': {
+                        const page = arguments[2]
+                        location.hash = '/content/new/' + page.Id;
+                        break;
+                    }
+
                     default: {
                         console.log("Event not handled: '" + eventName + "', " + arguments.length + " arguments, sender: " + sender);
                         console.log(arguments);
@@ -150,6 +167,7 @@
     })
         .component('page-tree', PageTree)
         .component('page-select', PageSelect)
+        .component('page-content-list', PageContentList)
         .use(router)
         .mount('#app');
 
