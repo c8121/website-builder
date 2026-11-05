@@ -4,21 +4,19 @@ export default {
 
     components: {
         TextEditor: defineAsyncComponent(() => import('./content-editor/text.vue.js')),
+        ImageEditor: defineAsyncComponent(() => import('./content-editor/image.vue.js')),
         TestEditor: defineAsyncComponent(() => import('./content-editor/test.vue.js'))
     },
 
     template: `
         <div>
-            <h1>PageContentView</h1>
-            <pre>{{ content }}</pre>
-            
             <div v-if="content">
 
                 <div class="mb-2">
                     <page-select v-model="content.PageId" ref="pageSelect" label="Page" @component-event="treeEvent" />
                 </div>
 
-                <div class="input-group mb-2">
+                <div class="input-group mb-4">
                     <label class="input-group-text">Name</label>
                     <input v-model="content.Name" class="form-control">
                 </div>
@@ -59,6 +57,7 @@ export default {
             content: null,
             availableEditors: [
                 {name: 'Text', component: 'TextEditor'},
+                {name: 'Image', component: 'ImageEditor'},
                 {name: 'Test', component: 'TestEditor'}
             ],
             selectedEditor: null

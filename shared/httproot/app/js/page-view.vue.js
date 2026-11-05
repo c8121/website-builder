@@ -3,9 +3,6 @@ export default {
 
     template: `
         <div>
-            <h1>PageView</h1>
-            <pre>{{ page }}</pre>
-            
             <div v-if="page">
 
                 <div class="mb-2">
@@ -17,9 +14,12 @@ export default {
                     <input v-model="page.Name" class="form-control">
                 </div>
                 
-                <div>
-                    <page-content-list :value="page.Id" ref="contentList" @component-event="listEvent" />
-                    <div>
+                <div class="card">
+                    <div class="card-header">Content</div>
+                    <div class="card-body">
+                        <page-content-list :value="page.Id" ref="contentList" @component-event="listEvent" />
+                    </div>
+                    <div class="card-footer">
                         <button class="btn btn-sm btn-secondary" @click="addContent"><i class="bi bi-file-earmark-plus"></i> Add</button>
                     </div>
                 </div>
