@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/c8121/go_db_entities"
 )
@@ -67,6 +68,47 @@ func LoadAllChildren(parentId int64, into *[]Page) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func LoadPagePath(pageId int64) ([]Page, error) {
+
+	path := make([]Page, 0)
+
+	var page *Page
+
+	for page == nil || pageId > 0 {
+
+		page = &Page{}
+		err := go_db_entities.Load(DbContext, page, *go_db_entities.NewIdFilter(pageId))
+		if err != nil {
+			return nil, err
+		}
+
+		path = append(path, *page)
+		pageId = page.ParentId
+	}
+
+	slices.Reverse(path)
+	return path, nil
+
+}
+
+func WalkPages(handler func(page Page)) error {
+	return walkPages(0, handler)
+}
+
+func walkPages(parentId int64, handler func(page Page)) error {
+	children, err := ListPages(parentId)
+	if err != nil {
+		return err
+	}
+
+	for _, child := range children {
+		handler(child)
+		walkPages(child.Id, handler)
 	}
 
 	return nil

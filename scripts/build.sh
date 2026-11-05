@@ -10,3 +10,4 @@ echo Sources from $CMD_DIR
 mkdir -p $OUT_DIR
 
 go build -o $OUT_DIR/spa-server $CMD_DIR/spa_server/main.go
+go build -o $OUT_DIR/builder $CMD_DIR/builder/main.go

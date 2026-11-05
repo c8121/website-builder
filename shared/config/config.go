@@ -8,7 +8,9 @@ import (
 )
 
 type Config struct {
-	ProjectDir string
+	ProjectDir  string
+	OutputDir   string
+	TemplateDir string
 
 	SpaHttpRoot string // Root directory to service SPA from. Using embedded FS if empty.
 
@@ -21,11 +23,13 @@ var (
 	AppConfig *Config = nil
 )
 
-func NewConfigFromFlags() *Config {
+func NewConfigFromFlags(errorHandling flag.ErrorHandling) *Config {
 
-	flagSet := flag.NewFlagSet("website-builder", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("website-builder", errorHandling)
 
 	cmdDataDir := flagSet.String("data", "", "Data directory for storage, meta-data, db...")
+	cmdOutputDir := flagSet.String("out", "", "Output directory")
+	cmdTemplateDir := flagSet.String("tpl", "", "Template directory")
 	cmdSpaHttpRoot := flagSet.String("spa", "", "HTTP root directory of SPA app")
 	cmdListen := flagSet.String("listen", "", "Listen Address (ip:port)")
 	cmdCertFile := flagSet.String("cert", "", "Certificate file")
@@ -44,6 +48,19 @@ func NewConfigFromFlags() *Config {
 		}
 	}
 	config.ProjectDir = useProjectDir
+	slog.Info("Init Path", "data", config.ProjectDir)
+
+	if *cmdOutputDir != "" {
+		config.OutputDir = *cmdOutputDir
+	} else {
+		config.OutputDir = "/tmp"
+	}
+	slog.Info("Init Path", "output", config.OutputDir)
+
+	if *cmdTemplateDir != "" {
+		config.TemplateDir = *cmdTemplateDir
+		slog.Info("Init Path", "template", config.TemplateDir)
+	}
 
 	if *cmdSpaHttpRoot != "" {
 		config.SpaHttpRoot = *cmdSpaHttpRoot

@@ -1,6 +1,8 @@
 package boostrap
 
 import (
+	"flag"
+
 	assetstoragebootstrap "github.com/c8121/asset-storage/shared/bootstrap"
 	assetstorageconfig "github.com/c8121/asset-storage/shared/config"
 	"github.com/c8121/go_db_entities"
@@ -11,8 +13,8 @@ import (
 
 func InitWebsiteBuiderApp() {
 
-	config.AppConfig = config.NewConfigFromFlags()
-	assetstorageconfig.AppConfig = assetstorageconfig.NewConfigFromFlags()
+	config.AppConfig = config.NewConfigFromFlags(flag.ExitOnError)
+	assetstorageconfig.AppConfig = assetstorageconfig.NewConfigFromFlags(flag.ContinueOnError)
 
 	assetstorageconfig.SetDirectories(assetstorageconfig.AppConfig, config.AppConfig.ProjectDir)
 
