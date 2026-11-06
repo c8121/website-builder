@@ -14,7 +14,22 @@
 <body>
 
     <div class="page-content">
-        Page Content Container
+
+        <div class="tpl Text">
+            {{ text }}
+        </div>
+
+        <div class="tpl Image">
+            <div>
+                <div>
+                    <img :src="src | asset" :alt="alt" />
+                </div>
+                <div v-if="alt">
+                    {{ alt }}
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </body>
