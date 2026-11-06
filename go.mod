@@ -1,14 +1,15 @@
 module github.com/c8121/website-builder
 
-go 1.26.0
+go 1.27.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/c8121/asset-storage v0.0.1
-	github.com/c8121/go_db_entities v0.0.9
+	github.com/c8121/go_db_entities v0.0.11
 	github.com/c8121/go_vue_spa v0.0.5
 	github.com/gin-gonic/gin v1.12.0
 	github.com/otiai10/copy v1.14.1
+	github.com/titpetric/vuego v0.11.0
 	golang.org/x/text v0.43.0
 )
 
@@ -42,6 +43,7 @@ require (
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
+	github.com/expr-lang/expr v1.17.8 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/gin-contrib/sse v1.1.2 // indirect
 	github.com/go-pkgz/expirable-cache/v3 v3.1.1 // indirect
@@ -61,6 +63,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
+	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
@@ -68,6 +71,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/takumakei/exif-orientation v0.0.0-20200808061749-30cdc5a97a18 // indirect
+	github.com/titpetric/lessgo v0.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	go.etcd.io/bbolt v1.5.0 // indirect
@@ -79,6 +83,7 @@ require (
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gosqlite.org v0.14.0 // indirect
 	modernc.org/libc v1.79.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
@@ -88,6 +93,5 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_db_entities v0.0.9 => ../go_db_entities
 	github.com/c8121/go_vue_spa v0.0.3 => ../go_vue_spa
 )
