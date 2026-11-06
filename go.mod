@@ -6,7 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/c8121/asset-storage v0.0.1
 	github.com/c8121/go_db_entities v0.0.9
-	github.com/c8121/go_vue_spa v0.0.3
+	github.com/c8121/go_vue_spa v0.0.5
 	github.com/gin-gonic/gin v1.12.0
 	github.com/otiai10/copy v1.14.1
 	golang.org/x/text v0.43.0
@@ -44,6 +44,7 @@ require (
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/gin-contrib/sse v1.1.2 // indirect
+	github.com/go-pkgz/expirable-cache/v3 v3.1.1 // indirect
 	github.com/go-playground/locales v0.14.2 // indirect
 	github.com/go-playground/universal-translator v0.18.2 // indirect
 	github.com/go-playground/validator/v10 v10.30.5 // indirect

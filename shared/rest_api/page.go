@@ -16,14 +16,14 @@ func GetPage(c *gin.Context) {
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusBadRequest, "missing id", err)
+		util.AbortWithStatus(c, http.StatusBadRequest, "missing id", err)
 		return
 	}
 
 	page := &entity.Page{}
 	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(id))
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusNotFound, "failed to load page", err)
+		util.AbortWithStatus(c, http.StatusNotFound, "failed to load page", err)
 		return
 	}
 
@@ -39,7 +39,7 @@ func ListPages(c *gin.Context) {
 
 	items, err := entity.ListPages(parentId)
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
-		util.AboutWithStatus(c, http.StatusInternalServerError, "Failed to load pages", err)
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load pages", err)
 		return
 	}
 
@@ -56,17 +56,17 @@ func AddPage(c *gin.Context) {
 	req := &entity.Page{}
 	err := c.BindJSON(req)
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusInternalServerError, "Failed to parse request", err)
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to parse request", err)
 		return
 	}
 
 	if strings.TrimSpace(req.Name) == "" {
-		util.AboutWithStatus(c, http.StatusBadRequest, "Empty name not allowed", nil)
+		util.AbortWithStatus(c, http.StatusBadRequest, "Empty name not allowed", nil)
 		return
 	}
 
 	if req.Id != 0 && req.Id == req.ParentId {
-		util.AboutWithStatus(c, http.StatusBadRequest, "ParentId == Id", nil)
+		util.AbortWithStatus(c, http.StatusBadRequest, "ParentId == Id", nil)
 		return
 	}
 
@@ -74,12 +74,12 @@ func AddPage(c *gin.Context) {
 		children := make([]entity.Page, 0)
 		err := entity.LoadAllChildren(req.Id, &children)
 		if err != nil {
-			util.AboutWithStatus(c, http.StatusInternalServerError, "Failed to check for exiting children", err)
+			util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to check for exiting children", err)
 			return
 		}
 		for _, child := range children {
 			if child.Id == req.ParentId {
-				util.AboutWithStatus(c, http.StatusBadRequest, "cyclic reference", nil)
+				util.AbortWithStatus(c, http.StatusBadRequest, "cyclic reference", nil)
 				return
 			}
 		}
@@ -87,7 +87,7 @@ func AddPage(c *gin.Context) {
 
 	err = go_db_entities.Save(entity.DbContext, req)
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusInternalServerError, "Failed to save entity", err)
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to save entity", err)
 		return
 	}
 
@@ -98,20 +98,20 @@ func DeletePage(c *gin.Context) {
 
 	id, err := strconv.ParseInt(c.PostForm("id"), 10, 64)
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusBadRequest, "missing id", err)
+		util.AbortWithStatus(c, http.StatusBadRequest, "missing id", err)
 		return
 	}
 
 	page := &entity.Page{}
 	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(id))
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusNotFound, "failed to load page", err)
+		util.AbortWithStatus(c, http.StatusNotFound, "failed to load page", err)
 		return
 	}
 
 	err = go_db_entities.Delete(entity.DbContext, page)
 	if err != nil {
-		util.AboutWithStatus(c, http.StatusInternalServerError, "failed to delete page", err)
+		util.AbortWithStatus(c, http.StatusInternalServerError, "failed to delete page", err)
 	}
 
 	c.IndentedJSON(http.StatusOK, &util.Response{
