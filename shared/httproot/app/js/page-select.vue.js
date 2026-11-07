@@ -1,7 +1,7 @@
 export default {
     template: `
         <div>
-            <div class="dropdown">
+            <div class="dropdown" ref="dropDown">
                 <div class="input-group">
                     <label v-if="label" class="input-group-text">{{label}}</label>
                     <button class="form-control" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
@@ -30,7 +30,7 @@ export default {
     watch: {
         modelValue: {
             handler(newValue) {
-                if(!this.page || this.page.Id !== newValue) {
+                if (!this.page || this.page.Id !== newValue) {
                     this.loadPage(newValue);
                 }
             },
@@ -49,11 +49,11 @@ export default {
         loadPage(id) {
             const self = this;
 
-            if(self.$refs.pageTree) {
+            if (self.$refs.pageTree) {
                 self.$refs.pageTree.reload();
             }
 
-            if(!id) {
+            if (!id) {
                 self.page = null;
                 return;
             }
@@ -64,7 +64,7 @@ export default {
             fetch('/page/' + id, requestOptions)
                 .then(res => res.json())
                 .then(json => {
-                    if(json.Id) {
+                    if (json.Id) {
                         self.page = json;
                     } else {
                         this.$emit('update:modelValue', 0);
@@ -78,6 +78,12 @@ export default {
 
         reloadPageTree() {
             this.$refs.pageTree.reload();
+        },
+
+        showDropdown() {
+            console.log("dropdown", this.$refs.dropDown);
+            const dropdown = bootstrap.Dropdown.getOrCreateInstance(this.$refs.dropDown);
+            dropdown.show();
         },
 
         componentEvent(eventName, sender) {

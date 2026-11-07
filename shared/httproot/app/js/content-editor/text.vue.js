@@ -1,7 +1,9 @@
 export default {
     template: `
         <div>
-            <textarea v-model="editorContent" class="form-control"></textarea>
+            <template v-if="editorContent">
+                <textarea v-model="editorContent.text" class="form-control"></textarea>
+            </template>
         </div>
     `,
 
@@ -14,11 +16,28 @@ export default {
 
     methods: {
         setContent(content) {
-            this.editorContent = content;
+            if (content) {
+                try {
+                    this.editorContent = this.initContent(JSON.parse(content));
+                } catch (e) {
+                    console.log("Failed to parse content");
+                    this.editorContent = this.initContent({text: content});
+                }
+            } else {
+                this.editorContent = this.initContent({});
+            }
+        },
+
+        initContent(content) {
+            if (!content.text) {
+                content.text = "";
+            }
+
+            return content;
         },
 
         getContent() {
-            return this.editorContent;
+            return JSON.stringify(this.editorContent);
         },
     },
 

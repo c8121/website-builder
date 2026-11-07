@@ -5,9 +5,12 @@ export default {
                 <div class="mb-2">
                     <asset-select label="URL" v-model="editorContent.src"></asset-select>
                 </div>
-                <div class="input-group">
+                <div class="input-group mb-2">
                     <label class="input-group-text">Alt</label>
                     <input v-model="editorContent.alt" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <href-input label="Link" v-model="editorContent.href" />
                 </div>
             </template>
         </div>
@@ -35,11 +38,14 @@ export default {
         },
 
         initContent(content) {
-            if(!content.src) {
+            if (!content.src) {
                 content.src = "";
             }
-            if(!content.alt) {
+            if (!content.alt) {
                 content.alt = "";
+            }
+            if (!content.href) {
+                content.href = "";
             }
 
             return content;
@@ -48,15 +54,6 @@ export default {
         getContent() {
             return JSON.stringify(this.editorContent);
         },
-
-        addItem() {
-            var val = this.editorContent;
-            val.push("TEST")
-            this.$emit('update:modelValue', {
-                ...this.modelValue,
-                Content: JSON.stringify(val)
-            });
-        }
     },
 
     emits: ['componentEvent'],

@@ -76,6 +76,7 @@
     import PageSelect from './js/page-select.vue.js'
     import PageContentView from './js/page-content-view.vue.js'
     import PageContentList from './js/page-content-list.vue.js'
+    import HrefInput from './js/href-input.vue.js'
 
     import AssetSelect from './js/asset-select.vue.js'
 
@@ -171,6 +172,7 @@
         .component('page-select', PageSelect)
         .component('page-content-list', PageContentList)
         .component('asset-select', AssetSelect)
+        .component('href-input', HrefInput)
         .use(router)
         .mount('#app');
 
