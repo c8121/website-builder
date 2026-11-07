@@ -16,17 +16,19 @@
     <div class="page-content">
 
         <div class="tpl Text">
-            {{ text }}
+            <pre>{{ text }}</pre>
         </div>
 
         <div class="tpl Image">
             <div>
-                <div>
-                    <img :src="src | asset" :alt="alt" />
-                </div>
-                <div v-if="alt">
-                    {{ alt }}
-                </div>
+                <a v-if="href" :href="href">
+                    <div><img :src="src | asset" :alt="alt" /></div>
+                    <div v-if="alt">{{ alt }}</div>
+                </a>
+                <template v-else>
+                    <div><img :src="src | asset" :alt="alt" /></div>
+                    <div v-if="alt">{{ alt }}</div>
+                </template>
             </div>
         </div>
 
