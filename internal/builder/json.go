@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 
 	"github.com/titpetric/vuego"
 )
@@ -11,7 +12,12 @@ import (
 var (
 	functionMap = vuego.FuncMap{
 		"asset": func(url string) string {
-			return "http://localhost:9998" + url
+			path, err := InsertAsset(url)
+			if err != nil {
+				slog.Warn("Asset download failed", "error", err)
+				return url
+			}
+			return path
 		},
 	}
 

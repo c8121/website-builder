@@ -30,22 +30,27 @@ func GetPageDirectoryPath(page entity.Page) (string, error) {
 }
 
 func GetPageDirectoryName(page entity.Page) string {
-	s := page.Name
+	return NormalizeAsFileName(page.Name, fmt.Sprintf("page-%d", page.Id))
+}
+
+func NormalizeAsFileName(name string, fallback string) string {
+
+	s := name
 	s = strings.TrimSpace(s)
-	s = strings.ReplaceAll(s, " ", "-")
-	s = ReplaceUmlautsGerman(s)
-	s = RemoveIllegalCharacters(s)
+	s = strings.Join(strings.Fields(s), "-")
+	s = replaceUmlautsGerman(s)
+	s = replaceIllegalCharacters(s)
 	s = strings.ToLower(s)
 
 	if s == "" {
-		slog.Warn("Generated empty dir name", "path", s)
-		s = fmt.Sprintf("page-%d", page.Id)
+		slog.Warn("Generated empty name", "name", s)
+		s = fallback
 	}
 
 	return s
 }
 
-func ReplaceUmlautsGerman(input string) string {
+func replaceUmlautsGerman(input string) string {
 	r := strings.NewReplacer(
 		"ä", "ae", "ö", "oe", "ü", "ue",
 		"Ä", "Ae", "Ö", "Oe", "Ü", "Ue",
@@ -54,16 +59,42 @@ func ReplaceUmlautsGerman(input string) string {
 	return r.Replace(input)
 }
 
-func RemoveIllegalCharacters(input string) string {
+func replaceIllegalCharacters(input string) string {
 
-	removePunctExceptHyphen := runes.Predicate(func(r rune) bool {
-		return unicode.IsPunct(r) && r != '-'
+	// Characters explicitly forbidden in Windows, Linux, and macOS file paths
+	// Windows: < > : " / \ | ? *
+	// Linux/macOS: / and NUL (handled via control characters check)
+	invalidPathChars := `<>:"/\|?*`
+
+	// Replace unwanted punctuation with a hyphen
+	replaceInvalidPathRunes := runes.Map(func(r rune) rune {
+		// 1. Keep valid
+		if r == '-' || r == '.' {
+			return r
+		}
+
+		// 2. Check for ASCII control characters (0-31 and 127)
+		if r < 32 || r == 127 {
+			return '-'
+		}
+
+		// 3. Check for explicitly forbidden OS path characters
+		if strings.ContainsRune(invalidPathChars, r) {
+			return '-'
+		}
+
+		// 4. Fallback: Replace other unwanted punctuation
+		if unicode.IsPunct(r) {
+			return '-'
+		}
+
+		return r
 	})
 
 	t := transform.Chain(
 		norm.NFD,
-		runes.Remove(runes.In(unicode.Mn)),
-		runes.Remove(removePunctExceptHyphen),
+		runes.Remove(runes.In(unicode.Mn)), // Remove accents/diacritics
+		replaceInvalidPathRunes,
 		norm.NFC,
 	)
 
