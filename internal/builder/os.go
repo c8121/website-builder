@@ -26,7 +26,7 @@ func GetPageDirectoryPath(page *entity.Page) (string, error) {
 		directoryPath = filepath.Join(directoryPath, GetPageDirectoryName(item))
 	}
 
-	return directoryPath, nil
+	return directoryPath + "/", nil
 }
 
 func GetPageDirectoryName(page entity.Page) string {
