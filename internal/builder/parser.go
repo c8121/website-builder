@@ -11,16 +11,23 @@ import (
 )
 
 type Parser struct {
-	doc *goquery.Document
+	doc         *goquery.Document
+	asserLoader *AssetLoader
+	jsonBinder  *JsonBinder
 }
 
-func NewParser(doc *goquery.Document) *Parser {
+func NewParser(doc *goquery.Document, assetLoader *AssetLoader) *Parser {
+
+	jsonBinder := NewJsonBinder(assetLoader)
+
 	return &Parser{
-		doc: doc,
+		doc:         doc,
+		asserLoader: assetLoader,
+		jsonBinder:  jsonBinder,
 	}
 }
 
-func NewParserFromFile(path string) (*Parser, error) {
+func NewParserFromFile(path string, assetLoader *AssetLoader) (*Parser, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -31,7 +38,7 @@ func NewParserFromFile(path string) (*Parser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewParser(doc), nil
+	return NewParser(doc, assetLoader), nil
 }
 
 func (p *Parser) Parse(page entity.Page, contents []entity.PageContent) error {
@@ -61,7 +68,7 @@ func (p *Parser) Parse(page entity.Page, contents []entity.PageContent) error {
 			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
-			err = Bind(contentTemplate, content.Content, parsed)
+			err = p.jsonBinder.Bind(contentTemplate, content.Content, parsed)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err, "id", content.Id, "name", content.Name, "type", content.ContentType)
 				parsedContent = append(parsedContent, "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")

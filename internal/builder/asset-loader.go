@@ -15,44 +15,68 @@ import (
 	"github.com/c8121/go_vue_spa/util"
 )
 
-var (
-	client = &http.Client{
+type AssetLoader struct {
+	assetStorageUrl string
+	outputBaseDir   string
+
+	client *http.Client
+
+	nameCache map[string]string
+}
+
+func NewAssetLoader(assetStorageUrl, outputBaseDir string) *AssetLoader {
+
+	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	AssetStorageUrl = "http://localhost:9998"
-	OutputBaseDir   = "/tmp"
-)
+	return &AssetLoader{
+		assetStorageUrl: assetStorageUrl,
+		outputBaseDir:   outputBaseDir,
+		client:          client,
+		nameCache:       make(map[string]string),
+	}
+}
 
-func InsertAsset(src string) (string, error) {
+// CopyAsset downloads the asset and its metadata and stores it into outputBaseDir, using original name (normalized)
+func (a *AssetLoader) CopyAsset(src string) (string, error) {
 
-	hash, err := extractAssetHash(src)
+	if strings.TrimSpace(src) == "" {
+		return "", errors.New("empty source path")
+	}
+
+	cached, ok := a.nameCache[src]
+	if ok {
+		return cached, nil
+	}
+
+	hash, err := a.extractAssetHash(src)
 	if err != nil {
 		slog.Warn("Error extracting asset hash", "error", err)
-		return DownloadAsset(src)
+		return a.DownloadAsset(src)
 	}
 
-	meta, err := DownloadAssetMetaData(hash)
+	meta, err := a.DownloadAssetMetaData(hash)
 	if err != nil {
 		slog.Warn("Error downloading asset meta", "error", err)
-		return DownloadAsset(src)
+		return a.DownloadAsset(src)
 	}
 
-	name, err := ExtractNameFromMetaData(meta)
+	name, err := a.ExtractNameFromMetaData(meta)
 	if err != nil {
 		slog.Warn("Error extracting asset name", "error", err)
 		name = hash
 	}
 
-	dest, err := GetDestination(name)
+	dest, err := a.GetDestinationName(name)
 	if err != nil {
 		slog.Warn("Error getting destination", "error", err)
-		return DownloadAsset(src)
+		return a.DownloadAsset(src)
 	}
 
 	slog.Info("Inserting asset", "hash", hash, "dest", dest)
 
-	temp, err := DownloadAsset(src)
+	temp, err := a.DownloadAsset(src)
 	if err != nil {
 		return "", err
 	}
@@ -62,29 +86,31 @@ func InsertAsset(src string) (string, error) {
 		return "", err
 	}
 
+	a.nameCache[src] = dest
+
 	return dest, nil
 }
 
-func GetDestination(name string) (string, error) {
-	dir := OutputBaseDir
+// GetDestinationName generates a unique name for the asset, using the given name as template
+func (a *AssetLoader) GetDestinationName(name string) (string, error) {
 
 	name = NormalizeAsFileName(name, fmt.Sprintf("asset-%d", time.Now().UnixNano()))
-	basename, extension := splitName(name)
+	basename, extension := a.splitName(name)
 
 	num := 0
-	path := filepath.Join(dir, name)
-	for checkExists(path) {
+	path := filepath.Join(a.outputBaseDir, name)
+	for a.checkExists(path) {
 		num++
 		if num > 1000 {
 			return "", errors.New("too many files")
 		}
-		path = filepath.Join(dir, fmt.Sprintf("%s(%d).%s", basename, num, extension))
+		path = filepath.Join(a.outputBaseDir, fmt.Sprintf("%s(%d).%s", basename, num, extension))
 	}
 
 	return path, nil
 }
 
-func splitName(name string) (string, string) {
+func (a *AssetLoader) splitName(name string) (string, string) {
 	p := strings.LastIndexByte(name, '.')
 	if p < 0 {
 		return name, ""
@@ -92,12 +118,12 @@ func splitName(name string) (string, string) {
 	return name[:p], name[p+1:]
 }
 
-func checkExists(path string) bool {
+func (a *AssetLoader) checkExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
 
-func ExtractNameFromMetaData(meta map[string]any) (string, error) {
+func (a *AssetLoader) ExtractNameFromMetaData(meta map[string]any) (string, error) {
 	origins, ok := meta["Origins"]
 	if !ok {
 		return "", fmt.Errorf("missing Origins: %v", meta)
@@ -116,7 +142,7 @@ func ExtractNameFromMetaData(meta map[string]any) (string, error) {
 	return name, nil
 }
 
-func extractAssetHash(src string) (string, error) {
+func (a *AssetLoader) extractAssetHash(src string) (string, error) {
 
 	if !strings.HasPrefix(src, "/assets/") {
 		slog.Warn("Source does not start with /assets/")
@@ -130,18 +156,19 @@ func extractAssetHash(src string) (string, error) {
 	return src[p+1:], nil
 }
 
-func DownloadAsset(src string) (string, error) {
+// DownloadAsset loads the asset from asset-storage and stores it as temp-file into outputBaseDir
+func (a *AssetLoader) DownloadAsset(src string) (string, error) {
 
-	src = AssetStorageUrl + src
+	src = a.assetStorageUrl + src
 	slog.Info("Download asset", "src", src)
 
-	tmp, err := os.CreateTemp(OutputBaseDir, "")
+	tmp, err := os.CreateTemp(a.outputBaseDir, "")
 	if err != nil {
 		return "", err
 	}
 	defer util.CloseOrLog(tmp)
 
-	resp, err := client.Get(src)
+	resp, err := a.client.Get(src)
 	if err != nil {
 		util.LogError(os.Remove(tmp.Name()))
 		return "", err
@@ -162,12 +189,12 @@ func DownloadAsset(src string) (string, error) {
 	return tmp.Name(), nil
 }
 
-func DownloadAssetMetaData(hash string) (map[string]any, error) {
+func (a *AssetLoader) DownloadAssetMetaData(hash string) (map[string]any, error) {
 
-	src := AssetStorageUrl + "/assets/metadata/" + hash
+	src := a.assetStorageUrl + "/assets/metadata/" + hash
 	slog.Info("Download asset metadata", "src", src)
 
-	resp, err := client.Get(src)
+	resp, err := a.client.Get(src)
 	if err != nil {
 		return nil, err
 	}

@@ -9,10 +9,16 @@ import (
 	"github.com/titpetric/vuego"
 )
 
-var (
-	functionMap = vuego.FuncMap{
+type JsonBinder struct {
+	assetLoader *AssetLoader
+	vueRenderer vuego.Template
+}
+
+func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
+
+	functionMap := vuego.FuncMap{
 		"asset": func(url string) string {
-			path, err := InsertAsset(url)
+			path, err := assetLoader.CopyAsset(url)
 			if err != nil {
 				slog.Warn("Asset download failed", "error", err)
 				return url
@@ -21,10 +27,17 @@ var (
 		},
 	}
 
-	renderer = vuego.New(vuego.WithFuncs(functionMap))
-)
+	vueRenderer := vuego.New(
+		vuego.WithFuncs(functionMap))
 
-func Bind(html string, jsonData string, writer io.Writer) error {
+	return &JsonBinder{
+		assetLoader: assetLoader,
+		vueRenderer: vueRenderer,
+	}
+
+}
+
+func (b *JsonBinder) Bind(html string, jsonData string, writer io.Writer) error {
 
 	var data map[string]any
 	err := json.Unmarshal([]byte(jsonData), &data)
@@ -32,7 +45,7 @@ func Bind(html string, jsonData string, writer io.Writer) error {
 		return err
 	}
 
-	err = renderer.New().Fill(data).RenderString(context.Background(), writer, html)
+	err = b.vueRenderer.New().Fill(data).RenderString(context.Background(), writer, html)
 	if err != nil {
 		return err
 	}

@@ -14,7 +14,8 @@ type Builder struct {
 	FileMode                os.FileMode
 	DefaultTemplateFileName string
 
-	Parser *Parser
+	Parser      *Parser
+	AssetLoader *AssetLoader
 
 	templateDir string
 	outputDir   string
@@ -40,8 +41,19 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		outputDir:   outputDir,
 	}
 
+	assetsOutputDir := filepath.Join(outputDir, "assets")
+	err := util.CreateDirIfNotExists(assetsOutputDir, builder.FileMode)
+	if err != nil {
+		return nil, err
+	}
+
+	builder.AssetLoader = NewAssetLoader(
+		"http://localhost:9998", //TODO
+		assetsOutputDir,
+	)
+
 	builder.template = filepath.Join(templateDir, builder.DefaultTemplateFileName)
-	parser, err := NewParserFromFile(builder.template)
+	parser, err := NewParserFromFile(builder.template, builder.AssetLoader)
 	if err != nil {
 		return nil, err
 	}

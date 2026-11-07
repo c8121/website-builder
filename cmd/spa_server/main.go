@@ -13,7 +13,7 @@ import (
 func main() {
 
 	boostrap.InitWebsiteBuiderApp()
-	defer boostrap.FinalizeWebsiteBuiderApp()
+	defer boostrap.FinalizeWebsiteBuilderApp()
 
 	router := gin.Default()
 	util.LogError(router.SetTrustedProxies(nil))

@@ -39,6 +39,6 @@ func InitWebsiteBuiderApp() {
 
 }
 
-func FinalizeWebsiteBuiderApp() {
+func FinalizeWebsiteBuilderApp() {
 	assetstoragebootstrap.FinalizeAssetStorageApp()
 }

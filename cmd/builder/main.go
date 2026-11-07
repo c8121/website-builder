@@ -2,22 +2,16 @@ package main
 
 import (
 	"log/slog"
-	"os"
 
 	builder2 "github.com/c8121/website-builder/internal/builder"
 	boostrap "github.com/c8121/website-builder/shared/bootstrap"
 	"github.com/c8121/website-builder/shared/config"
 )
 
-const (
-	FileMode                os.FileMode = 0750
-	DefaultTemplateFileName             = "index.html"
-)
-
 func main() {
 
 	boostrap.InitWebsiteBuiderApp()
-	defer boostrap.FinalizeWebsiteBuiderApp()
+	defer boostrap.FinalizeWebsiteBuilderApp()
 
 	if config.AppConfig.TemplateDir == "" {
 		slog.Error("No template selected")
