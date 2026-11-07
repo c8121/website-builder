@@ -96,18 +96,18 @@ func LoadPagePath(pageId int64) ([]Page, error) {
 
 }
 
-func WalkPages(handler func(page Page)) error {
+func WalkPages(handler func(page *Page)) error {
 	return walkPages(0, handler)
 }
 
-func walkPages(parentId int64, handler func(page Page)) error {
+func walkPages(parentId int64, handler func(page *Page)) error {
 	children, err := ListPages(parentId)
 	if err != nil {
 		return err
 	}
 
 	for _, child := range children {
-		handler(child)
+		handler(&child)
 		walkPages(child.Id, handler)
 	}
 

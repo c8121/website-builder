@@ -27,10 +27,5 @@ func main() {
 		return
 	}
 
-	err = builder.Build()
-	if err != nil {
-		slog.Error("Failed to build", "error", err)
-		return
-	}
-
+	builder.Build()
 }

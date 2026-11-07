@@ -10,17 +10,25 @@ import (
 	"github.com/otiai10/copy"
 )
 
+// Builder creates the website
 type Builder struct {
-	FileMode                os.FileMode
-	DefaultTemplateFileName string
+	Config *TemplateConfig
 
-	Parser      *Parser
-	AssetLoader *AssetLoader
+	HomePage *entity.Page
+}
 
-	templateDir string
-	outputDir   string
+func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
+	return filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName), nil
+}
 
-	template string
+func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, string, error) {
+	templateFile, err := b.SelectTemplate(page)
+	if err != nil {
+		return nil, "", err
+	}
+
+	parser, err := NewTemplateParserFromFile(templateFile, b.Config)
+	return parser, templateFile, err
 }
 
 func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
@@ -33,90 +41,88 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		return nil, os.ErrNotExist
 	}
 
-	builder := &Builder{
+	config := &TemplateConfig{
 		FileMode:                0740,
+		OutputBaseDir:           outputDir,
+		TemplateDir:             templateDir,
 		DefaultTemplateFileName: "index.html",
-
-		templateDir: templateDir,
-		outputDir:   outputDir,
 	}
 
 	assetsOutputDir := filepath.Join(outputDir, "assets")
-	err := util.CreateDirIfNotExists(assetsOutputDir, builder.FileMode)
+	err := util.CreateDirIfNotExists(assetsOutputDir, config.FileMode)
 	if err != nil {
 		return nil, err
 	}
 
-	builder.AssetLoader = NewAssetLoader(
+	config.AssetLoader = NewAssetLoader(
 		"http://localhost:9998", //TODO
 		assetsOutputDir,
 	)
 
-	builder.template = filepath.Join(templateDir, builder.DefaultTemplateFileName)
-	parser, err := NewParserFromFile(builder.template, builder.AssetLoader)
-	if err != nil {
-		return nil, err
+	config.JsonBinder = NewJsonBinder(config.AssetLoader)
+
+	builder := &Builder{
+		Config: config,
 	}
-	builder.Parser = parser
 
 	return builder, nil
 }
 
-func (b *Builder) Build() error {
+func (b *Builder) Build() {
 
-	util.LogError(entity.WalkPages(func(page entity.Page) {
-		path, err := GetPageDirectoryPath(page)
+	util.LogError(entity.WalkPages(func(page *entity.Page) {
+
+		var outputDir string
+		var err error
+
+		if b.IsHomePage(page) {
+			outputDir = b.Config.OutputBaseDir
+		} else {
+			outputDir, err = GetPageDirectoryPath(page)
+			if err != nil {
+				slog.Error("Failed to get path", "path", outputDir, "err", err)
+				return
+			}
+		}
+
+		slog.Info("Create Page", "id", page.Id, "path", outputDir)
+		err = os.MkdirAll(outputDir, b.Config.FileMode)
 		if err != nil {
-			slog.Error("Failed to get path", "path", path)
+			slog.Error("Failed to get path", "path", outputDir, "err", err)
 			return
 		}
 
-		slog.Info("Create Page", "id", page.Id, "path", path)
-		err = os.MkdirAll(path, b.FileMode)
+		templateParser, templateFile, err := b.CreateTemplateParser(page)
 		if err != nil {
-			slog.Error("Failed to get path", "path", path)
+			slog.Error("Failed to create parser", "path", outputDir, "err", err)
 			return
 		}
 
-		template := filepath.Join(path, b.DefaultTemplateFileName)
-		err = copy.Copy(b.template, template)
+		err = templateParser.Parse(page)
 		if err != nil {
-			slog.Error("Failed to copy page template", "path", path, "err", err)
+			slog.Error("Failed to parse", "path", outputDir, "err", err)
 			return
 		}
 
-		contents, err := entity.ListPageContents(page.Id)
+		outputFile := filepath.Join(outputDir, filepath.Base(templateFile))
+		err = templateParser.Save(outputFile)
 		if err != nil {
-			slog.Error("Failed to list contents", "path", path, "err", err)
-			return
-		}
-
-		err = b.ParseTemplateFile(template, page, contents)
-		if err != nil {
-			slog.Error("Failed to parse template", "path", path, "err", err)
+			slog.Error("Failed to save", "path", outputDir, "err", err)
 			return
 		}
 	}))
-
-	return nil
 }
 
-func (b *Builder) ParseTemplateFile(file string, page entity.Page, contents []entity.PageContent) error {
-	slog.Info("Parse Template", "path", file, "page", page.Id, "contents", len(contents))
-
-	err := b.Parser.Parse(page, contents)
-	if err != nil {
-		return err
+func (b *Builder) IsHomePage(page *entity.Page) bool {
+	// TODO this just selects the fist page
+	if b.HomePage == nil {
+		b.HomePage = page
+		return true
 	}
-
-	err = b.Parser.Save(file, b.FileMode)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return false
 }
 
+// CopyTemplate copies the whole TemplateDir to OutputBaseDir
 func (b *Builder) CopyTemplate() error {
 
 	opts := copy.Options{
@@ -124,7 +130,7 @@ func (b *Builder) CopyTemplate() error {
 		PermissionControl: copy.DoNothing,
 	}
 
-	err := copy.Copy(b.templateDir, b.outputDir, opts)
+	err := copy.Copy(b.Config.TemplateDir, b.Config.OutputBaseDir, opts)
 	if err != nil {
 		slog.Error("Failed to copy template", "error", err)
 		return err

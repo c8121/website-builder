@@ -10,24 +10,21 @@ import (
 	"github.com/c8121/website-builder/internal/entity"
 )
 
-type Parser struct {
-	doc         *goquery.Document
-	asserLoader *AssetLoader
-	jsonBinder  *JsonBinder
+// TemplateParser takes a html-template and inserts content of pages (entity.Page)
+type TemplateParser struct {
+	doc    *goquery.Document
+	Config *TemplateConfig
 }
 
-func NewParser(doc *goquery.Document, assetLoader *AssetLoader) *Parser {
+func NewTemplateParser(doc *goquery.Document, config *TemplateConfig) *TemplateParser {
 
-	jsonBinder := NewJsonBinder(assetLoader)
-
-	return &Parser{
-		doc:         doc,
-		asserLoader: assetLoader,
-		jsonBinder:  jsonBinder,
+	return &TemplateParser{
+		doc:    doc,
+		Config: config,
 	}
 }
 
-func NewParserFromFile(path string, assetLoader *AssetLoader) (*Parser, error) {
+func NewTemplateParserFromFile(path string, config *TemplateConfig) (*TemplateParser, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -38,10 +35,10 @@ func NewParserFromFile(path string, assetLoader *AssetLoader) (*Parser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewParser(doc, assetLoader), nil
+	return NewTemplateParser(doc, config), nil
 }
 
-func (p *Parser) Parse(page entity.Page, contents []entity.PageContent) error {
+func (p *TemplateParser) Parse(page *entity.Page) error {
 
 	contents, err := entity.ListPageContents(page.Id)
 	if err != nil {
@@ -68,7 +65,7 @@ func (p *Parser) Parse(page entity.Page, contents []entity.PageContent) error {
 			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
-			err = p.jsonBinder.Bind(contentTemplate, content.Content, parsed)
+			err = p.Config.JsonBinder.Bind(contentTemplate, content.Content, parsed)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err, "id", content.Id, "name", content.Name, "type", content.ContentType)
 				parsedContent = append(parsedContent, "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")
@@ -89,17 +86,23 @@ func (p *Parser) Parse(page entity.Page, contents []entity.PageContent) error {
 		}
 	})
 
+	documentParser := NewDocumentParser(p.doc, p.Config)
+	err = documentParser.Parse()
+	if err != nil {
+		slog.Error("Failed to parse document", "error", err)
+	}
+
 	return nil
 }
 
-func (p *Parser) Save(path string, perm os.FileMode) error {
+func (p *TemplateParser) Save(path string) error {
 
 	html, err := p.doc.Html()
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(path, []byte(html), perm)
+	err = os.WriteFile(path, []byte(html), p.Config.FileMode)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/titpetric/vuego"
 )
 
+// JsonBinder takes html and json (each as string) and inserts json into html (using vuego)
 type JsonBinder struct {
 	assetLoader *AssetLoader
 	vueRenderer vuego.Template
@@ -17,6 +18,8 @@ type JsonBinder struct {
 func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
 
 	functionMap := vuego.FuncMap{
+
+		//not needed for src-attributes, because these will be parsed by DocumentParser
 		"asset": func(url string) string {
 			path, err := assetLoader.CopyAsset(url)
 			if err != nil {

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-func GetPageDirectoryPath(page entity.Page) (string, error) {
+func GetPageDirectoryPath(page *entity.Page) (string, error) {
 
 	path, err := entity.LoadPagePath(page.Id)
 	if err != nil {
