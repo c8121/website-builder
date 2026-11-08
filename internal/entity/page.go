@@ -27,10 +27,18 @@ func (p *Page) SetId(id int64) {
 	p.Id = id
 }
 
+func (p *Page) GetSort() int64 {
+	return p.Sort
+}
+
+func (p *Page) SetSort(sort int64) {
+	p.Sort = sort
+}
+
 func ListPages(parentId int64) ([]Page, error) {
 
 	filter := go_db_entities.NewFilter("ParentId", go_db_entities.CompareEqual, parentId)
-	filter.OrderBy = []string{"Sort"}
+	filter.OrderBy = []string{"Sort", "Id"}
 
 	pageSupplier := func() go_db_entities.Entity {
 		return &Page{}
@@ -49,6 +57,20 @@ func ListPages(parentId int64) ([]Page, error) {
 
 	return pages, nil
 
+}
+
+func CheckForCycle(page *Page) error {
+	var children []Page
+	err := LoadAllChildren(page.Id, &children)
+	if err != nil {
+		return err
+	}
+	for _, child := range children {
+		if child.Id == page.ParentId {
+			return fmt.Errorf("cyclic reference: %d", page.Id)
+		}
+	}
+	return nil
 }
 
 func LoadAllChildren(parentId int64, into *[]Page) error {

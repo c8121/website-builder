@@ -70,6 +70,12 @@ func AddPageContent(c *gin.Context) {
 		return
 	}
 
+	req.Sort, err = findValidPageContentSort(req)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort", err)
+		return
+	}
+
 	err = go_db_entities.Save(entity.DbContext, req)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to save entity", err)
@@ -77,6 +83,83 @@ func AddPageContent(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, req)
+}
+
+func findValidPageContentSort(content *entity.PageContent) (int64, error) {
+
+	// New pages are appended to the end of their siblings
+	if content.Id == 0 {
+		return nextPageSort(content.PageId)
+	}
+
+	// Sort is managed by the reorder-endpoint, do not trust the client's (possibly stale) value.
+	// A page moved to another parent is appended to the end of the new siblings.
+	existing := &entity.PageContent{}
+	err := go_db_entities.Load(entity.DbContext, existing, *go_db_entities.NewIdFilter(content.Id))
+	if err != nil {
+		return 0, err
+	}
+	if existing.PageId == content.PageId {
+		return existing.Sort, nil
+	}
+
+	return nextPageContentSort(content.PageId)
+}
+
+// nextPageContentSort returns the Sort value for a content appended to the end of pageId's contents.
+func nextPageContentSort(pageId int64) (int64, error) {
+
+	contents, err := entity.ListPageContents(pageId)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(contents) == 0 {
+		return 1, nil
+	}
+	return contents[len(contents)-1].Sort + 1, nil
+}
+
+type reorderPageContentsRequest struct {
+	PageId int64
+	Ids    []int64
+}
+
+// ReorderPageContents sets the order of the contents of PageId to the order of Ids.
+func ReorderPageContents(c *gin.Context) {
+
+	req := &reorderPageContentsRequest{}
+	err := c.ShouldBindJSON(req)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusBadRequest, "Failed to parse request", err)
+		return
+	}
+
+	if req.PageId == 0 {
+		util.AbortWithStatus(c, http.StatusBadRequest, "PageId == 0", nil)
+		return
+	}
+
+	contents, err := entity.ListPageContents(req.PageId)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load contents", err)
+		return
+	}
+
+	err = entity.Sort(contents, req.Ids)
+	if errors.Is(err, entity.ErrSortMismatch) {
+		util.AbortWithStatus(c, http.StatusBadRequest, "Ids do not match the existing contents", err)
+		return
+	}
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort contents", err)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, &util.Response{
+		Status:  "ok",
+		Message: "Contents sorted",
+	})
 }
 
 func DeletePageContent(c *gin.Context) {

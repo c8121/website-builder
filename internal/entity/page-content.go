@@ -27,10 +27,18 @@ func (p *PageContent) SetId(id int64) {
 	p.Id = id
 }
 
+func (p *PageContent) GetSort() int64 {
+	return p.Sort
+}
+
+func (p *PageContent) SetSort(sort int64) {
+	p.Sort = sort
+}
+
 func ListPageContents(parentId int64) ([]PageContent, error) {
 
 	filter := go_db_entities.NewFilter("PageId", go_db_entities.CompareEqual, parentId)
-	filter.OrderBy = []string{"Sort"}
+	filter.OrderBy = []string{"Sort", "Id"}
 
 	pageSupplier := func() go_db_entities.Entity {
 		return &PageContent{}

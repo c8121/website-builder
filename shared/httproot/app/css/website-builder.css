@@ -1,0 +1,10 @@
+.hover-container .hover-content {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.hover-container:hover .hover-content {
+    opacity: 1;
+    visibility: visible;
+}

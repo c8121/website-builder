@@ -6,9 +6,9 @@ export default {
 
     template: `
         <div>
-            <div v-for="item in list" class="text-nowrap text-start">
+            <div v-for="(item, index) in list" class="text-nowrap text-start">
                 
-                <div>
+                <div class="hover-container">
                     <button @click="item.showChildren = !item.showChildren" class="btn m-0 p-0">
                         <span v-if="!item.showChildren"><i class="bi bi-folder-plus"></i></span>
                         <span v-else><i class="bi bi-folder-minus"></i></span>
@@ -16,10 +16,14 @@ export default {
                     <button @click="item.showChildren = true; itemClicked(item)" class="btn m-0 p-0">
                         <span v-if="!item.Name">({{ item.Id }})</span>{{ item.Name }}
                     </button>
+                    <span v-if="sortable" class="ms-2 hover-content">
+                        <button @click="move(index, -1)" v-if="index > 0" class="btn m-0 p-0" title="Move up"><i class="bi bi-arrow-up-circle"></i></button>
+                        <button @click="move(index, 1)" v-if="index < list.length - 1" class="btn m-0 p-0" title="Move down"><i class="bi bi-arrow-down-circle"></i></button>
+                    </span>
                 </div>
                 
                 <div class="ms-2">
-                <page-tree ref="childTrees" v-if="item.showChildren" :value="item.Id"
+                <page-tree ref="childTrees" v-if="item.showChildren" :value="item.Id" :sortable="sortable"
                         @componentEvent="childClicked"></page-tree>
                 </div>
             </div>
@@ -28,6 +32,10 @@ export default {
 
     props: {
         value: "",
+        sortable: {
+            type: Boolean,
+            default: false
+        }
     },
 
     data() {
@@ -77,6 +85,25 @@ export default {
 
         reload() {
             this.loadItems();
+        },
+
+        move(index, delta) {
+            const self = this;
+
+            const target = index + delta;
+            if (target < 0 || target >= self.list.length)
+                return;
+
+            const ids = self.list.map(item => item.Id);
+            [ids[index], ids[target]] = [ids[target], ids[index]];
+
+            const requestParams = {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ParentId: self.value ? self.value : 0, Ids: ids})
+            }
+            fetch('/pages/reorder', requestParams)
+                .finally(() => self.loadItems());
         },
 
         itemClicked(item) {

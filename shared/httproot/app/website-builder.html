@@ -14,6 +14,7 @@
     <link href="css/boostrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet"/>
     <link href="css/app.css" rel="stylesheet"/>
     <link href="css/assets.css" rel="stylesheet"/>
+    <link href="css/website-builder.css" rel="stylesheet"/>
 
     <script type="importmap">
         {
@@ -38,7 +39,7 @@
 
         <div class="row mt-lg-4">
             <div class="col-sm-8 pb-2 overflow-x-hidden">
-                <page-tree ref="pageTree" @component-event="componentEvent" />
+                <page-tree ref="pageTree" sortable @component-event="componentEvent" />
             </div>
         </div>
 

@@ -71,18 +71,17 @@ func AddPage(c *gin.Context) {
 	}
 
 	if req.Id != 0 {
-		children := make([]entity.Page, 0)
-		err := entity.LoadAllChildren(req.Id, &children)
+		err := entity.CheckForCycle(req)
 		if err != nil {
-			util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to check for exiting children", err)
+			util.AbortWithStatus(c, http.StatusBadRequest, "cyclic reference", err)
 			return
 		}
-		for _, child := range children {
-			if child.Id == req.ParentId {
-				util.AbortWithStatus(c, http.StatusBadRequest, "cyclic reference", nil)
-				return
-			}
-		}
+	}
+
+	req.Sort, err = findValidPageSort(req)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort", err)
+		return
 	}
 
 	err = go_db_entities.Save(entity.DbContext, req)
@@ -92,6 +91,78 @@ func AddPage(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, req)
+}
+
+func findValidPageSort(page *entity.Page) (int64, error) {
+
+	// New pages are appended to the end of their siblings
+	if page.Id == 0 {
+		return nextPageSort(page.ParentId)
+	}
+
+	// Sort is managed by the reorder-endpoint, do not trust the client's (possibly stale) value.
+	// A page moved to another parent is appended to the end of the new siblings.
+	existing := &entity.Page{}
+	err := go_db_entities.Load(entity.DbContext, existing, *go_db_entities.NewIdFilter(page.Id))
+	if err != nil {
+		return 0, err
+	}
+	if existing.ParentId == page.ParentId {
+		return existing.Sort, nil
+	}
+
+	return nextPageSort(page.ParentId)
+}
+
+// nextPageSort returns the Sort value for a page appended to the end of parentId's children.
+func nextPageSort(parentId int64) (int64, error) {
+
+	pages, err := entity.ListPages(parentId)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(pages) == 0 {
+		return 1, nil
+	}
+	return pages[len(pages)-1].Sort + 1, nil
+}
+
+type reorderPagesRequest struct {
+	ParentId int64
+	Ids      []int64
+}
+
+// ReorderPages sets the order of the children of ParentId to the order of Ids.
+func ReorderPages(c *gin.Context) {
+
+	req := &reorderPagesRequest{}
+	err := c.ShouldBindJSON(req)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusBadRequest, "Failed to parse request", err)
+		return
+	}
+
+	pages, err := entity.ListPages(req.ParentId)
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load pages", err)
+		return
+	}
+
+	err = entity.Sort(pages, req.Ids)
+	if errors.Is(err, entity.ErrSortMismatch) {
+		util.AbortWithStatus(c, http.StatusBadRequest, "Ids do not match the existing pages", err)
+		return
+	}
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort pages", err)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, &util.Response{
+		Status:  "ok",
+		Message: "Pages sorted",
+	})
 }
 
 func DeletePage(c *gin.Context) {
