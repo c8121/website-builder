@@ -41,21 +41,13 @@ func NewConfigFromFlags(errorHandling flag.ErrorHandling) *Config {
 
 	config := &Config{}
 
-	useProjectDir := *cmdDataDir
-	if useProjectDir == "" {
-		if userHome, err := os.UserHomeDir(); err != nil {
-			panic("failed to get user home directory")
-		} else {
-			useProjectDir = filepath.Join(userHome, "website-builder")
-		}
-	}
-	config.ProjectDir = useProjectDir
+	config.ProjectDir = ResolveProjectDir(*cmdDataDir)
 	slog.Info("Init Path", "data", config.ProjectDir)
 
 	if *cmdOutputDir != "" {
 		config.OutputDir = *cmdOutputDir
 	} else {
-		config.OutputDir = "/tmp"
+		config.OutputDir = filepath.Join(config.ProjectDir, "tmp", "generated")
 	}
 	slog.Info("Init Path", "output", config.OutputDir)
 
@@ -87,4 +79,16 @@ func NewConfigFromFlags(errorHandling flag.ErrorHandling) *Config {
 	}
 
 	return config
+}
+
+func ResolveProjectDir(projectDir string) string {
+	if projectDir == "" {
+		if userHome, err := os.UserHomeDir(); err != nil {
+			panic("failed to get user home directory")
+		} else {
+			return filepath.Join(userHome, "website-builder")
+		}
+	}
+
+	return projectDir
 }

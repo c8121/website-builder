@@ -14,18 +14,16 @@ import (
 func InitWebsiteBuilderApp() {
 
 	config.AppConfig = config.NewConfigFromFlags(flag.ExitOnError)
-	assetstorageconfig.AppConfig = assetstorageconfig.NewConfigFromFlags(flag.ContinueOnError)
 
+	assetstorageconfig.AppConfig = assetstorageconfig.NewConfigFromPath(config.AppConfig.ProjectDir)
 	assetstorageconfig.SetDirectories(assetstorageconfig.AppConfig, config.AppConfig.ProjectDir)
-
 	assetstoragebootstrap.CreateAppDir(assetstorageconfig.AppConfig.AssetStorageBaseDir)
 	assetstoragebootstrap.CreateAppDir(assetstorageconfig.AppConfig.AssetStorageTempDir)
-
 	assetstoragebootstrap.CreateAppDir(assetstorageconfig.AppConfig.AssetMetaDataBaseDir)
-
 	assetstoragebootstrap.CreateAppDir(assetstorageconfig.AppConfig.AssetCollectionsBaseDir)
-
 	assetstoragebootstrap.CreateAppDir(assetstorageconfig.AppConfig.AssetFulltextIndexBaseDir)
+
+	assetstoragebootstrap.CreateAppDir(config.AppConfig.OutputDir)
 
 	assetstoragebootstrap.OpenDatabase()
 
