@@ -13,22 +13,6 @@ import (
 // Builder creates the website
 type Builder struct {
 	Config *BuildConfig
-
-	HomePage *entity.Page
-}
-
-func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
-	return filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName), nil
-}
-
-func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, string, error) {
-	templateFile, err := b.SelectTemplate(page)
-	if err != nil {
-		return nil, "", err
-	}
-
-	parser, err := NewTemplateParserFromFile(templateFile, b.Config)
-	return parser, templateFile, err
 }
 
 func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
@@ -68,6 +52,20 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 	return builder, nil
 }
 
+func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
+	return filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName), nil
+}
+
+func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, string, error) {
+	templateFile, err := b.SelectTemplate(page)
+	if err != nil {
+		return nil, "", err
+	}
+
+	parser, err := NewTemplateParserFromFile(templateFile, b.Config)
+	return parser, templateFile, err
+}
+
 func (b *Builder) Build() {
 
 	util.LogError(entity.WalkPages(func(page *entity.Page) {
@@ -75,7 +73,7 @@ func (b *Builder) Build() {
 		var outputDir string
 		var err error
 
-		if b.IsHomePage(page) {
+		if b.Config.IsHomePage(page) {
 			outputDir = b.Config.OutputBaseDir
 		} else {
 			outputDir, err = GetPageDirectoryPath(page)
@@ -123,15 +121,6 @@ func (b *Builder) Build() {
 			return
 		}
 	}))
-}
-
-func (b *Builder) IsHomePage(page *entity.Page) bool {
-	// TODO this just selects the fist page
-	if b.HomePage == nil {
-		b.HomePage = page
-		return true
-	}
-	return false
 }
 
 // CopyTemplate copies the whole TemplateDir to OutputBaseDir

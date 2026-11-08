@@ -24,7 +24,7 @@
     <div class="main-nav">
         <ul>
             <li v-for="child in Children">
-                <a :href="child.Path">{{ child.Name }}</a>
+                <a :href="child.IsHomePage ? '/' : child.Path">{{ child.Name }}</a>
                 <ul>
                     <li v-for="child in child.Children">
                         <a :href="child.Path">{{ child.Name }}</a>
@@ -43,9 +43,8 @@
 
     <div class="page-content">
 
-        <h2>{{ Meta.Name }}</h2>
-
         <div class="tpl Text">
+            <h2>{{ Meta.Name }}</h2>
             <pre>{{ Content.text }}</pre>
         </div>
 
@@ -60,7 +59,7 @@
                 </a>
                 <template v-else>
                     <div><img :src="Content.src | asset" :alt="Content.alt" /></div>
-                    <div v-if="Content.alt">{{ alt }}</div>
+                    <div v-if="Content.alt">{{ Content.alt }}</div>
                 </template>
             </div>
         </div>

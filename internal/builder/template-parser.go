@@ -107,7 +107,7 @@ func (p *TemplateParser) InsertMainNav() error {
 		return nil
 	}
 
-	binder := NewPageTreeBinder()
+	binder := NewPageTreeBinder(p.Config)
 
 	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
 

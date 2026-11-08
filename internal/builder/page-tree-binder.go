@@ -8,20 +8,22 @@ import (
 )
 
 type PageTreeBinder struct {
+	Config      *BuildConfig
 	vueRenderer vuego.Template
 }
 
-func NewPageTreeBinder() *PageTreeBinder {
+func NewPageTreeBinder(config *BuildConfig) *PageTreeBinder {
 	vueRenderer := vuego.New()
 
 	return &PageTreeBinder{
+		Config:      config,
 		vueRenderer: vueRenderer,
 	}
 }
 
 func (p *PageTreeBinder) Bind(html string, writer io.Writer) error {
 
-	pageTree, err := CreatePageTree()
+	pageTree, err := NewPageTree(p.Config).CreatePageTree()
 	if err != nil {
 		return err
 	}
