@@ -59,6 +59,7 @@ func ListPages(parentId int64) ([]Page, error) {
 
 }
 
+// CheckForCycle check if moving a page would make it its own ancestor.
 func CheckForCycle(page *Page) error {
 	var children []Page
 	err := LoadAllChildren(page.Id, &children)

@@ -71,6 +71,10 @@ func AddPageContent(c *gin.Context) {
 	}
 
 	req.Sort, err = findValidPageContentSort(req)
+	if errors.Is(err, go_db_entities.ErrNotFound) {
+		util.AbortWithStatus(c, http.StatusNotFound, "content not found", err)
+		return
+	}
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort", err)
 		return
@@ -87,13 +91,13 @@ func AddPageContent(c *gin.Context) {
 
 func findValidPageContentSort(content *entity.PageContent) (int64, error) {
 
-	// New pages are appended to the end of their siblings
+	// New contents are appended to the end of the page's contents
 	if content.Id == 0 {
-		return nextPageSort(content.PageId)
+		return nextPageContentSort(content.PageId)
 	}
 
 	// Sort is managed by the reorder-endpoint, do not trust the client's (possibly stale) value.
-	// A page moved to another parent is appended to the end of the new siblings.
+	// A content moved to another page is appended to the end of that page's contents.
 	existing := &entity.PageContent{}
 	err := go_db_entities.Load(entity.DbContext, existing, *go_db_entities.NewIdFilter(content.Id))
 	if err != nil {

@@ -4,7 +4,16 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.hover-container:hover .hover-content {
+.hover-container:hover .hover-content,
+.hover-container:focus-within .hover-content {
     opacity: 1;
     visibility: visible;
+}
+
+/* No hover on touch devices: always show */
+@media (hover: none) {
+    .hover-container .hover-content {
+        opacity: 1;
+        visibility: visible;
+    }
 }
