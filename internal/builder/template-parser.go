@@ -38,7 +38,7 @@ func NewTemplateParserFromFile(path string, config *TemplateConfig) (*TemplatePa
 	return NewTemplateParser(doc, config), nil
 }
 
-func (p *TemplateParser) Parse(page *entity.Page) error {
+func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
 	contents, err := entity.ListPageContents(page.Id)
 	if err != nil {
@@ -86,8 +86,51 @@ func (p *TemplateParser) Parse(page *entity.Page) error {
 		}
 	})
 
+	return nil
+}
+
+func (p *TemplateParser) InsertMainNav() error {
+
+	templateSelector := ".main-nav"
+	template := ""
+	var err error
+	p.doc.Find(templateSelector).Each(func(i int, s *goquery.Selection) {
+		template, err = s.Html()
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if template == "" {
+		slog.Info("No nav template found", "selector", templateSelector)
+		return nil
+	}
+
+	binder := NewPageTreeBinder()
+
+	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
+
+		slog.Info("Insert main nav")
+		s.Empty()
+
+		parsed := &bytes.Buffer{}
+		err = binder.Bind(template, parsed)
+		if err != nil {
+			slog.Warn("Failed to bind", "error", err)
+		} else {
+			s.AppendHtml("\n<!-- MainNav -->\n")
+			s.AppendHtml(parsed.String())
+		}
+	})
+
+	return nil
+}
+
+func (p *TemplateParser) ParseDocument() error {
+
 	documentParser := NewDocumentParser(p.doc, p.Config)
-	err = documentParser.Parse()
+	err := documentParser.Parse()
 	if err != nil {
 		slog.Error("Failed to parse document", "error", err)
 	}

@@ -43,7 +43,7 @@ func NormalizeAsFileName(name string, fallback string) string {
 	s = strings.ToLower(s)
 
 	if s == "" {
-		slog.Warn("Generated empty name", "name", s)
+		slog.Warn("Generated empty name", "name", name, "fallback", fallback)
 		s = fallback
 	}
 

@@ -98,9 +98,21 @@ func (b *Builder) Build() {
 			return
 		}
 
-		err = templateParser.Parse(page)
+		err = templateParser.InsertContent(page)
 		if err != nil {
 			slog.Error("Failed to parse", "path", outputDir, "err", err)
+			return
+		}
+
+		err = templateParser.InsertMainNav()
+		if err != nil {
+			slog.Error("Failed to insert main nav", "path", outputDir, "err", err)
+			return
+		}
+
+		err = templateParser.ParseDocument()
+		if err != nil {
+			slog.Error("Failed to parse document", "path", outputDir, "err", err)
 			return
 		}
 

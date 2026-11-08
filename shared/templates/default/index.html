@@ -7,13 +7,41 @@
     <meta name="description" content="Website Builder Default Template"/>
     <meta name="author" content="c8121"/>
 
-    <title>:) Website Builder</title>
+    <title>:) Generates Website</title>
+
+    <style>
+        div{
+            margin: 5px;
+            padding: 5px;
+            border: 1px dotted #ccc;
+        }
+    </style>
     
 </head>
 
 <body>
 
-    <div class="page-content m-5 p-5">
+    <div class="main-nav">
+        <ul>
+            <li v-for="child in Children">
+                <a :href="child.Path">{{ child.Name }}</a>
+                <ul>
+                    <li v-for="child in child.Children">
+                        <a :href="child.Path">{{ child.Name }}</a>
+                        <ul>
+                            <li v-for="child in child.Children">
+                                <a :href="child.Path">{{ child.Name }}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+
+
+    <div class="page-content">
 
         <div class="tpl Text">
             <pre>{{ text }}</pre>
