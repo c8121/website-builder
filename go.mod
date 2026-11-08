@@ -93,5 +93,5 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_vue_spa v0.0.6 => ../go_vue_spa
+	github.com/c8121/go_vue_spa v0.0.7 => ../go_vue_spa
 )
