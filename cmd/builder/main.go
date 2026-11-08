@@ -3,14 +3,14 @@ package main
 import (
 	"log/slog"
 
-	builder2 "github.com/c8121/website-builder/internal/builder"
-	boostrap "github.com/c8121/website-builder/shared/bootstrap"
+	"github.com/c8121/website-builder/internal/builder"
+	"github.com/c8121/website-builder/shared/bootstrap"
 	"github.com/c8121/website-builder/shared/config"
 )
 
 func main() {
 
-	boostrap.InitWebsiteBuiderApp()
+	boostrap.InitWebsiteBuilderApp()
 	defer boostrap.FinalizeWebsiteBuilderApp()
 
 	if config.AppConfig.TemplateDir == "" {
@@ -18,7 +18,7 @@ func main() {
 		return
 	}
 
-	builder, err := builder2.NewBuilder(
+	pageBuilder, err := builder.NewBuilder(
 		config.AppConfig.TemplateDir,
 		config.AppConfig.OutputDir,
 	)
@@ -27,5 +27,5 @@ func main() {
 		return
 	}
 
-	builder.Build()
+	pageBuilder.Build()
 }

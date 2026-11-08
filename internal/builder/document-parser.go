@@ -15,10 +15,10 @@ import (
 // DocumentParser analyses the whole DOM and parses contents (finding assets, parsing paths...)
 type DocumentParser struct {
 	doc    *goquery.Document
-	Config *TemplateConfig
+	Config *BuildConfig
 }
 
-func NewDocumentParser(document *goquery.Document, config *TemplateConfig) *DocumentParser {
+func NewDocumentParser(document *goquery.Document, config *BuildConfig) *DocumentParser {
 	return &DocumentParser{
 		doc:    document,
 		Config: config,

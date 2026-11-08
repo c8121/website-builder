@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/c8121/go_db_entities"
+	"github.com/c8121/go_vue_spa/util"
 )
 
 type Page struct {
@@ -131,7 +132,7 @@ func walkPages(parentId int64, handler func(page *Page)) error {
 
 	for _, child := range children {
 		handler(&child)
-		walkPages(child.Id, handler)
+		util.LogError(walkPages(child.Id, handler))
 	}
 
 	return nil

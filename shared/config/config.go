@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/c8121/go_vue_spa/util"
 )
 
 type Config struct {
@@ -35,7 +37,7 @@ func NewConfigFromFlags(errorHandling flag.ErrorHandling) *Config {
 	cmdCertFile := flagSet.String("cert", "", "Certificate file")
 	cmdKeyFile := flagSet.String("key", "", "Key file")
 
-	flagSet.Parse(os.Args[1:])
+	util.LogError(flagSet.Parse(os.Args[1:]))
 
 	config := &Config{}
 

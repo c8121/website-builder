@@ -12,7 +12,7 @@ import (
 
 // Builder creates the website
 type Builder struct {
-	Config *TemplateConfig
+	Config *BuildConfig
 
 	HomePage *entity.Page
 }
@@ -41,7 +41,7 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		return nil, os.ErrNotExist
 	}
 
-	config := &TemplateConfig{
+	config := &BuildConfig{
 		FileMode:                0740,
 		OutputBaseDir:           outputDir,
 		TemplateDir:             templateDir,

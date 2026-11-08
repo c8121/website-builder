@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	boostrap.InitWebsiteBuiderApp()
+	boostrap.InitWebsiteBuilderApp()
 	defer boostrap.FinalizeWebsiteBuilderApp()
 
 	router := gin.Default()

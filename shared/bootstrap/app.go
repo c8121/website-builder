@@ -11,7 +11,7 @@ import (
 	"github.com/c8121/website-builder/shared/config"
 )
 
-func InitWebsiteBuiderApp() {
+func InitWebsiteBuilderApp() {
 
 	config.AppConfig = config.NewConfigFromFlags(flag.ExitOnError)
 	assetstorageconfig.AppConfig = assetstorageconfig.NewConfigFromFlags(flag.ContinueOnError)

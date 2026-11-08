@@ -2,7 +2,7 @@ package builder
 
 import "os"
 
-type TemplateConfig struct {
+type BuildConfig struct {
 	FileMode                os.FileMode
 	OutputBaseDir           string
 	TemplateDir             string

@@ -13,10 +13,10 @@ import (
 // TemplateParser takes a html-template and inserts content of pages (entity.Page)
 type TemplateParser struct {
 	doc    *goquery.Document
-	Config *TemplateConfig
+	Config *BuildConfig
 }
 
-func NewTemplateParser(doc *goquery.Document, config *TemplateConfig) *TemplateParser {
+func NewTemplateParser(doc *goquery.Document, config *BuildConfig) *TemplateParser {
 
 	return &TemplateParser{
 		doc:    doc,
@@ -24,7 +24,7 @@ func NewTemplateParser(doc *goquery.Document, config *TemplateConfig) *TemplateP
 	}
 }
 
-func NewTemplateParserFromFile(path string, config *TemplateConfig) (*TemplateParser, error) {
+func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParser, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
-			err = p.Config.JsonBinder.Bind(contentTemplate, content.Content, parsed)
+			err = p.Config.JsonBinder.Bind(contentTemplate, content, parsed)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err, "id", content.Id, "name", content.Name, "type", content.ContentType)
 				parsedContent = append(parsedContent, "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")

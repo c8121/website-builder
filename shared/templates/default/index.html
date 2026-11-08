@@ -43,19 +43,24 @@
 
     <div class="page-content">
 
+        <h2>{{ Meta.Name }}</h2>
+
         <div class="tpl Text">
-            <pre>{{ text }}</pre>
+            <pre>{{ Content.text }}</pre>
         </div>
 
         <div class="tpl Image">
+
+            <h2>{{ Meta.Name }}</h2>
+
             <div>
-                <a v-if="href" :href="href">
-                    <div><img :src="src | asset" :alt="alt" /></div>
-                    <div v-if="alt">{{ alt }}</div>
+                <a v-if="Content.href" :href="Content.href">
+                    <div><img :src="Content.src | asset" :alt="Content.alt" /></div>
+                    <div v-if="Content.alt">{{ Content.alt }}</div>
                 </a>
                 <template v-else>
-                    <div><img :src="src | asset" :alt="alt" /></div>
-                    <div v-if="alt">{{ alt }}</div>
+                    <div><img :src="Content.src | asset" :alt="Content.alt" /></div>
+                    <div v-if="Content.alt">{{ alt }}</div>
                 </template>
             </div>
         </div>

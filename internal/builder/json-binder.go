@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 
+	"github.com/c8121/website-builder/internal/entity"
 	"github.com/titpetric/vuego"
 )
 
@@ -40,15 +41,27 @@ func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
 
 }
 
-func (b *JsonBinder) Bind(html string, jsonData string, writer io.Writer) error {
+type BindContent struct {
+	Meta    entity.PageContent
+	Content map[string]any
+}
+
+func (b *JsonBinder) Bind(html string, content entity.PageContent, writer io.Writer) error {
 
 	var data map[string]any
-	err := json.Unmarshal([]byte(jsonData), &data)
-	if err != nil {
-		return err
+	if content.Content != "" {
+		err := json.Unmarshal([]byte(content.Content), &data)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = b.vueRenderer.New().Fill(data).RenderString(context.Background(), writer, html)
+	bindContent := &BindContent{
+		Meta:    content,
+		Content: data,
+	}
+
+	err := b.vueRenderer.New().Fill(bindContent).RenderString(context.Background(), writer, html)
 	if err != nil {
 		return err
 	}
