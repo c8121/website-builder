@@ -68,3 +68,13 @@ func (b *JsonBinder) Bind(html string, content entity.PageContent, writer io.Wri
 
 	return nil
 }
+
+func (b *JsonBinder) BindData(html string, data any, writer io.Writer) error {
+
+	err := b.vueRenderer.New().Fill(data).RenderString(context.Background(), writer, html)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

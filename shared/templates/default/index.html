@@ -10,61 +10,89 @@
     <title>:) Generates Website</title>
 
     <style>
-        div{
+        div {
             margin: 5px;
             padding: 5px;
             border: 1px dotted #ccc;
         }
     </style>
-    
+
 </head>
 
 <body>
 
-    <div class="main-nav">
-        <ul>
-            <li v-for="child in Children">
-                <a :href="child.IsHomePage ? '/' : child.Path">{{ child.Name }}</a>
-                <ul>
-                    <li v-for="child in child.Children">
-                        <a :href="child.Path">{{ child.Name }}</a>
-                        <ul>
-                            <li v-for="child in child.Children">
-                                <a :href="child.Path">{{ child.Name }}</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+<div class="main-nav">
+    <ul>
+        <li v-for="child in Children">
+            <a :href="child.IsHomePage ? '/' : child.Path">{{ child.Name }}</a>
+            <ul>
+                <li v-for="child in child.Children">
+                    <a :href="child.Path">{{ child.Name }}</a>
+                    <ul>
+                        <li v-for="child in child.Children">
+                            <a :href="child.Path">{{ child.Name }}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="toc">
+    <h1>Table of contents</h1>
+    <ul>
+        <li v-for="child in Children">
+            <a :href="'#' + child.Name">{{ child.Caption }} ({{ child.Level }}) {{ child.Number }}</a>
+            <ul>
+                <li v-for="child in child.Children">
+                    <a :href="'#' + child.Name">{{ child.Caption }} ({{ child.Level }}) {{ child.Number }}</a>
+                    <ul>
+                        <li v-for="child in child.Children">
+                            <a :href="'#' + child.Name">{{ child.Caption }} ({{ child.Level }}) {{ child.Number }}</a>
+                            <ul>
+                                <li v-for="child in child.Children">
+                                    <a :href="'#' + child.Name">{{ child.Caption }} ({{ child.Level }}) {{ child.Number }}</a>
+                                    <ul>
+                                        <li v-for="child in child.Children">
+                                            <a :href="'#' + child.Name">{{ child.Caption }} ({{ child.Level }}) {{ child.Number }}</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+
+<div class="page-content">
+
+    <div class="tpl Text">
+        <h2>{{ Meta.Name }}</h2>
+        <pre>{{ Content.text }}</pre>
     </div>
 
+    <div class="tpl Image">
 
+        <h2>{{ Meta.Name }}</h2>
 
-    <div class="page-content">
-
-        <div class="tpl Text">
-            <h2>{{ Meta.Name }}</h2>
-            <pre>{{ Content.text }}</pre>
+        <div>
+            <a v-if="Content.href" :href="Content.href">
+                <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
+                <div v-if="Content.alt">{{ Content.alt }}</div>
+            </a>
+            <template v-else>
+                <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
+                <div v-if="Content.alt">{{ Content.alt }}</div>
+            </template>
         </div>
-
-        <div class="tpl Image">
-
-            <h2>{{ Meta.Name }}</h2>
-
-            <div>
-                <a v-if="Content.href" :href="Content.href">
-                    <div><img :src="Content.src | asset" :alt="Content.alt" /></div>
-                    <div v-if="Content.alt">{{ Content.alt }}</div>
-                </a>
-                <template v-else>
-                    <div><img :src="Content.src | asset" :alt="Content.alt" /></div>
-                    <div v-if="Content.alt">{{ Content.alt }}</div>
-                </template>
-            </div>
-        </div>
-
     </div>
+
+</div>
 
 </body>
 </html>

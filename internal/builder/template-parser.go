@@ -50,18 +50,10 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 	for _, content := range contents {
 		slog.Info("Insert content", "id", content.Id, "name", content.Name, "type", content.ContentType)
 
-		contentTemplateSelector := ".tpl." + content.ContentType
-		contentTemplate := ""
-		var err error
-		p.doc.Find(contentTemplateSelector).Each(func(i int, s *goquery.Selection) {
-			contentTemplate, err = s.Html()
-		})
-		if err != nil {
-			return err
-		}
+		_, contentTemplate := selectHtml(p.doc, ".tpl."+content.ContentType)
 
 		if contentTemplate == "" {
-			slog.Warn("No template found", "id", content.Id, "name", content.Name, "type", content.ContentType, "selector", contentTemplateSelector)
+			slog.Warn("No template found", "id", content.Id, "name", content.Name, "type", content.ContentType)
 			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
@@ -91,38 +83,24 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
 func (p *TemplateParser) InsertMainNav() error {
 
-	templateSelector := ".main-nav"
-	template := ""
-	var err error
-	p.doc.Find(templateSelector).Each(func(i int, s *goquery.Selection) {
-		template, err = s.Html()
-	})
-
-	if err != nil {
-		return err
-	}
-
-	if template == "" {
-		slog.Info("No nav template found", "selector", templateSelector)
+	node, template := selectHtml(p.doc, ".main-nav")
+	if node == nil || template == "" {
 		return nil
 	}
 
 	binder := NewPageTreeBinder(p.Config)
 
-	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
+	slog.Info("Insert main nav")
+	node.Empty()
 
-		slog.Info("Insert main nav")
-		s.Empty()
-
-		parsed := &bytes.Buffer{}
-		err = binder.Bind(template, parsed)
-		if err != nil {
-			slog.Warn("Failed to bind", "error", err)
-		} else {
-			s.AppendHtml("\n<!-- MainNav -->\n")
-			s.AppendHtml(parsed.String())
-		}
-	})
+	parsed := &bytes.Buffer{}
+	err := binder.Bind(template, parsed)
+	if err != nil {
+		slog.Warn("Failed to bind", "error", err)
+	} else {
+		node.AppendHtml("\n<!-- MainNav -->\n")
+		node.AppendHtml(parsed.String())
+	}
 
 	return nil
 }
@@ -133,6 +111,7 @@ func (p *TemplateParser) PostProcess() error {
 		NewPostprocessorInsertAssets(p.Config),
 		NewPostprocessorInsertPageLinks(p.Config),
 		NewPostprocessorTranslateLinks(p.Config),
+		NewPostprocessorCreateToc(p.Config),
 	}
 
 	for _, postProcessor := range *postProcessors {
