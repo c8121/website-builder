@@ -108,7 +108,7 @@ func (b *Builder) Build() {
 			return
 		}
 
-		err = templateParser.ParseDocument()
+		err = templateParser.PostProcess()
 		if err != nil {
 			slog.Error("Failed to parse document", "path", outputDir, "err", err)
 			return

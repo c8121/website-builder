@@ -127,12 +127,19 @@ func (p *TemplateParser) InsertMainNav() error {
 	return nil
 }
 
-func (p *TemplateParser) ParseDocument() error {
+func (p *TemplateParser) PostProcess() error {
 
-	documentParser := NewDocumentParser(p.doc, p.Config)
-	err := documentParser.Parse()
-	if err != nil {
-		slog.Error("Failed to parse document", "error", err)
+	postProcessors := &[]PostProcessor{
+		NewPostprocessorInsertAssets(p.Config),
+		NewPostprocessorInsertPageLinks(p.Config),
+		NewPostprocessorTranslateLinks(p.Config),
+	}
+
+	for _, postProcessor := range *postProcessors {
+		err := postProcessor.Process(p.doc)
+		if err != nil {
+			slog.Error("Failed to parse document", "error", err)
+		}
 	}
 
 	return nil
