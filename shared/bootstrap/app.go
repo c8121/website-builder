@@ -34,6 +34,7 @@ func InitWebsiteBuilderApp() {
 	)
 
 	entity.CheckCreateTables()
+	entity.CreateDefaultSiteConfig()
 
 }
 

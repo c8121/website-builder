@@ -12,6 +12,10 @@ export default {
         <div>
             <div v-if="content">
 
+                <div v-if="content.PageId" class="mb-3">
+                    <a class="btn btn-sm btn-link" :href="'#/page/' + content.PageId"><i class="bi bi-arrow-left-circle"></i> back</a>
+                </div>
+
                 <div class="mb-2">
                     <page-select v-model="content.PageId" ref="pageSelect" label="Page" @component-event="treeEvent" />
                 </div>

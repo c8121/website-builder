@@ -45,7 +45,10 @@
 
         <div class="row mt-lg-4">
             <div class="col-sm-8 pb-2">
-                <button @click="addPage" class="btn">Add page</button>
+                <button @click="addPage" class="btn"><i class="bi bi-file-earmark-plus"></i> Add page</button>
+            </div>
+            <div class="col-sm-8 pb-2">
+                <button @click="openConfig" class="btn"><i class="bi bi-sliders"></i> Config</button>
             </div>
         </div>
     </nav>
@@ -77,6 +80,8 @@
     import PageSelect from './js/page-select.vue.js'
     import PageContentView from './js/page-content-view.vue.js'
     import PageContentList from './js/page-content-list.vue.js'
+    import SiteConfigList from './js/site-config-list.vue.js'
+
     import HrefInput from './js/href-input.vue.js'
 
     import AssetSelect from './js/asset-select.vue.js'
@@ -87,6 +92,8 @@
 
         {path: '/content/:id', component: PageContentView, props: true},
         {path: '/content/new/:pageId', component: PageContentView, props: true},
+
+        {path: '/config', component: SiteConfigList, props: true},
     ];
 
     export const router = createRouter({
@@ -162,7 +169,11 @@
 
             addPage() {
                 location.hash = '/page/new/0';
-            }
+            },
+
+            openConfig() {
+                location.hash = '/config';
+            },
         },
 
         mounted() {
