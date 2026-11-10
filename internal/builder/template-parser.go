@@ -83,24 +83,30 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
 func (p *TemplateParser) InsertMainNav() error {
 
-	node, template := selectHtml(p.doc, ".main-nav")
-	if node == nil || template == "" {
-		return nil
-	}
+	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
 
-	binder := NewPageTreeBinder(p.Config)
+		template, err := s.Html()
+		if err == nil {
+			slog.Info("Insert main-nav")
 
-	slog.Info("Insert main nav")
-	node.Empty()
+			s.Empty()
 
-	parsed := &bytes.Buffer{}
-	err := binder.Bind(template, parsed)
-	if err != nil {
-		slog.Warn("Failed to bind", "error", err)
-	} else {
-		node.AppendHtml("\n<!-- MainNav -->\n")
-		node.AppendHtml(parsed.String())
-	}
+			pageTreeBinder := NewPageTreeBinder(p.Config)
+
+			parsed := &bytes.Buffer{}
+			err := pageTreeBinder.Bind(template, parsed)
+			if err != nil {
+				slog.Warn("Failed to bind", "error", err)
+			} else {
+				s.AppendHtml("\n<!-- MainNav -->\n")
+				s.AppendHtml(parsed.String())
+			}
+
+		} else {
+			slog.Warn("Failed to get main-nav template", "error", err)
+		}
+
+	})
 
 	return nil
 }
