@@ -68,6 +68,12 @@ func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, stri
 
 func (b *Builder) Build() {
 
+	err := b.CopyTemplate()
+	if err != nil {
+		slog.Error("Failed to copy template", "error", err)
+		return
+	}
+
 	util.LogError(entity.WalkPages(func(page *entity.Page) {
 
 		var outputDir string
@@ -131,11 +137,6 @@ func (b *Builder) CopyTemplate() error {
 		PermissionControl: copy.DoNothing,
 	}
 
-	err := copy.Copy(b.Config.TemplateDir, b.Config.OutputBaseDir, opts)
-	if err != nil {
-		slog.Error("Failed to copy template", "error", err)
-		return err
-	}
-
-	return nil
+	slog.Info("Copy template", "src", b.Config.TemplateDir, "dst", b.Config.OutputBaseDir)
+	return copy.Copy(b.Config.TemplateDir, b.Config.OutputBaseDir, opts)
 }

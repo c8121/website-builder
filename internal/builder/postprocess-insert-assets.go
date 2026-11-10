@@ -31,7 +31,7 @@ func (p *PostprocessorInsertAssets) Process(doc *goquery.Document) error {
 					if err == nil {
 						n.Attr[i].Val = assetSrc
 					} else {
-						slog.Warn("Failed to asset from URL", "src", attr.Val, "err", err)
+						slog.Warn("Failed to load asset from URL", "src", attr.Val, "err", err)
 					}
 				}
 			}
