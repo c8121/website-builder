@@ -14,7 +14,7 @@ export default {
                     <input v-model="page.Name" class="form-control">
                 </div>
                 
-                <div class="card">
+                <div class="card" v-if="page.Id">
                     <div class="card-header">Content</div>
                     <div class="card-body">
                         <page-content-list :value="page.Id" ref="contentList" @component-event="listEvent" />
