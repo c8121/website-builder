@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
+	"strings"
 
 	"github.com/c8121/website-builder/internal/entity"
 	"github.com/titpetric/vuego"
@@ -28,6 +29,10 @@ func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
 				return url
 			}
 			return path
+		},
+
+		"replace": func(s string, find string, replace string) string {
+			return strings.Replace(s, find, replace, -1)
 		},
 	}
 

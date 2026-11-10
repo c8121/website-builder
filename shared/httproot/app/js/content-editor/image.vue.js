@@ -9,6 +9,10 @@ export default {
                     <label class="input-group-text">Alt</label>
                     <input v-model="editorContent.alt" class="form-control">
                 </div>
+                <div class="input-group mb-2">
+                    <label class="input-group-text">CSS-Class</label>
+                    <input v-model="editorContent.class" class="form-control">
+                </div>
                 <div class="mb-2">
                     <href-input label="Link" v-model="editorContent.href" />
                 </div>
@@ -46,6 +50,9 @@ export default {
             }
             if (!content.href) {
                 content.href = "";
+            }
+            if (!content.class) {
+                content.class = "";
             }
 
             return content;

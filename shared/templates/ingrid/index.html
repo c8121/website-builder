@@ -7,7 +7,7 @@
     <meta name="description" content="{{ Description }}"/>
     <meta name="author" content="https://github.com/c8121/website-builder"/>
 
-    <title>{{ Title }}</title>
+    <title>{{ Title }} | {{ SubTitle }}</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
 
     <link href="/css/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -43,7 +43,9 @@
                 
 
                 <template v-for="child in Children">
-                <li class="nav-item" v-for="child in child.Children"><a class="nav-link" :href="'#' + child.Name">{{ child.Caption }}</a></li>
+                <li class="nav-item" v-for="child in child.Children"><a class="nav-link" :href="'#' + child.Name">
+                    {{ child.Caption | replace("enm", "en&shy;m") | replace("zung", "z&shy;ng") }}</a>
+                </li>
                 </template>        
             </ul>
         </div>
@@ -80,12 +82,10 @@
         
         <div class="tpl Image">
             <a v-if="Content.href" :href="Content.href">
-                <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
-                <div v-if="Content.alt">{{ Content.alt }}</div>
+                <div class="text-center"><img :src="Content.src | asset" :alt="Content.alt" :class="Content.class" /></div>
             </a>
             <template v-else>
-                <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
-                <div v-if="Content.alt">{{ Content.alt }}</div>
+                <div class="text-center"><img :src="Content.src | asset" :alt="Content.alt" :class="Content.class" /></div>
             </template>
         </div>
         
