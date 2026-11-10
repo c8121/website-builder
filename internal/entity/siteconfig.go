@@ -54,5 +54,12 @@ func ListSiteConfig() ([]SiteConfig, error) {
 	}
 
 	return siteConfigs, nil
+}
 
+func SiteConfigAsMap(siteConfigs []SiteConfig) map[string]string {
+	config := map[string]string{}
+	for _, siteConfig := range siteConfigs {
+		config[siteConfig.Name] = siteConfig.Value
+	}
+	return config
 }

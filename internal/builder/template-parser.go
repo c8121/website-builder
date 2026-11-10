@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/c8121/go_vue_spa/util"
 	"github.com/c8121/website-builder/internal/entity"
+	"golang.org/x/net/html"
 )
 
 // TemplateParser takes a html-template and inserts content of pages (entity.Page)
@@ -25,17 +25,46 @@ func NewTemplateParser(doc *goquery.Document, config *BuildConfig) *TemplatePars
 }
 
 func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParser, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer util.CloseOrLog(file)
 
-	doc, err := goquery.NewDocumentFromReader(file)
+	root, err := loadAndPreprocessFile(path, config)
 	if err != nil {
 		return nil, err
 	}
-	return NewTemplateParser(doc, config), nil
+
+	p := &TemplateParser{
+		doc:    goquery.NewDocumentFromNode(root),
+		Config: config,
+	}
+	return p, nil
+}
+
+func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error) {
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err = insertSiteConfig(content, config)
+
+	root, err := html.Parse(bytes.NewReader(content))
+	if err != nil {
+		return nil, err
+	}
+
+	return root, nil
+}
+
+// insertSiteConfig is a preparse step currently: could not figure how to parse goquery.Document or html.Node with vuego
+func insertSiteConfig(content []byte, config *BuildConfig) ([]byte, error) {
+
+	siteConfig, err := entity.ListSiteConfig()
+	if err != nil {
+		return nil, err
+	}
+	configMap := entity.SiteConfigAsMap(siteConfig)
+
+	return []byte(ReplacePlaceholders(string(content), configMap)), nil
 }
 
 func (p *TemplateParser) InsertContent(page *entity.Page) error {
