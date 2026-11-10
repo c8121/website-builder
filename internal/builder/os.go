@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -12,6 +13,10 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+)
+
+var (
+	hyphensRegEx = regexp.MustCompile(`-{2,}`)
 )
 
 func GetPageDirectoryPath(page *entity.Page) (string, error) {
@@ -103,5 +108,7 @@ func replaceIllegalCharacters(input string) string {
 		slog.Error("Transform failed", "error", err)
 		return input
 	}
+
+	output = hyphensRegEx.ReplaceAllString(output, "-")
 	return output
 }
