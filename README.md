@@ -157,4 +157,4 @@ Incomplete list:
 
 ## License
 
-Not yet decided.
+AGPLv3
