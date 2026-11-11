@@ -83,6 +83,7 @@
     import SiteConfigList from './js/site-config-list.vue.js'
 
     import HrefInput from './js/href-input.vue.js'
+    import NeikiEditor from './js/neiki-editor/neiki-editor.vue.js'
 
     import AssetSelect from './js/asset-select.vue.js'
 
@@ -185,6 +186,7 @@
         .component('page-content-list', PageContentList)
         .component('asset-select', AssetSelect)
         .component('href-input', HrefInput)
+        .component('neiki-editor', NeikiEditor)
         .use(router)
         .mount('#app');
 
@@ -192,6 +194,7 @@
 
 <!-- UI Scripts -->
 <script src="css/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/neiki-editor/neiki-editor.min.js"></script>
 
 </body>
 </html>

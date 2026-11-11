@@ -3,6 +3,7 @@ import {defineAsyncComponent, nextTick} from 'vue'
 export default {
 
     components: {
+        HtmlEditor: defineAsyncComponent(() => import('./content-editor/html.vue.js')),
         TextEditor: defineAsyncComponent(() => import('./content-editor/text.vue.js')),
         ImageEditor: defineAsyncComponent(() => import('./content-editor/image.vue.js')),
         TestEditor: defineAsyncComponent(() => import('./content-editor/test.vue.js'))
@@ -28,7 +29,7 @@ export default {
                 <div>
                     <select v-model="selectedEditor" class="form-select">
                         <option :value="null"></option>
-                        <option v-for="editor in availableEditors" :value="editor">{{ editor.name }}</option>
+                        <option v-for="editor in availableEditors" :value="editor">{{ editor.caption }}</option>
                     </select>
                 </div>
                 
@@ -60,9 +61,10 @@ export default {
         return {
             content: null,
             availableEditors: [
-                {name: 'Text', component: 'TextEditor'},
-                {name: 'Image', component: 'ImageEditor'},
-                {name: 'Test', component: 'TestEditor'}
+                {caption: 'Rich-Text', name: 'Html', component: 'HtmlEditor'},
+                {caption: 'Text', name: 'Text', component: 'TextEditor'},
+                {caption: 'Image', name: 'Image', component: 'ImageEditor'},
+                {caption: 'Test', name: 'Test', component: 'TestEditor'}
             ],
             selectedEditor: null
         }

@@ -71,6 +71,11 @@
 
 <div class="page-content">
 
+    <div class="tpl Html">
+        <h2>{{ Meta.Name }}</h2>
+        <div v-html="Content.text"></div>
+    </div>
+
     <div class="tpl Text">
         <h2>{{ Meta.Name }}</h2>
         <pre>{{ Content.text }}</pre>
