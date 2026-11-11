@@ -263,6 +263,51 @@ Incomplete list:
 - The test in `test/` is outdated and currently does not compile.
 - Error handling, validation and documentation are still thin.
 
+## Third-party components
+
+This project builds on the following components. They are not covered by this project's license; each one remains under its own license, which you can find in the linked repository.
+
+### Go modules (direct dependencies)
+
+| Component | Used for | Repository |
+|-----------|----------|------------|
+| goquery | Parsing and manipulating the HTML templates | https://github.com/PuerkitoBio/goquery |
+| vuego | Rendering the Vue-like template syntax | https://github.com/titpetric/vuego |
+| Gin | HTTP server and routing | https://github.com/gin-gonic/gin |
+| otiai10/copy | Copying the template directory into the output | https://github.com/otiai10/copy |
+| golang.org/x/net | HTML parser | https://github.com/golang/net |
+| golang.org/x/text | Unicode normalization of file names | https://github.com/golang/text |
+
+### Libraries by the same author
+
+| Component | Used for | Repository |
+|-----------|----------|------------|
+| asset-storage | Asset storage, its REST API and UI parts | https://github.com/c8121/asset-storage |
+| go_db_entities | Simple entity persistence | https://github.com/c8121/go_db_entities |
+| go_vue_spa | Serving the Vue SPA | https://github.com/c8121/go_vue_spa |
+
+### Frontend (CMS)
+
+| Component | Version | Repository |
+|-----------|---------|------------|
+| Vue | 3.5.41 | https://github.com/vuejs/core |
+| Vue Router | 5.2.0 | https://github.com/vuejs/router |
+| Bootstrap | 5.3.8 | https://github.com/twbs/bootstrap |
+| Bootstrap Icons | 1.13.1 | https://github.com/twbs/icons |
+| Neiki Editor (rich-text editor, bundled in `shared/httproot/app/js/neiki-editor/`) | 1.0 | https://github.com/neikiri/neiki-editor |
+
+Vue, Vue Router, Bootstrap and Bootstrap Icons are referenced by `website-builder.html` but are not part of this repository; they are delivered through the `go_vue_spa` and `asset-storage` modules.
+
+### Templates
+
+| Component | Version | Repository |
+|-----------|---------|------------|
+| Bootstrap (CSS and JavaScript, bundled in `shared/templates/ingrid/css/`) | 5.3.8 | https://github.com/twbs/bootstrap |
+
+### Transitive dependencies
+
+Go modules pulled in indirectly are listed in `go.mod` and `go.sum`, among them Bleve (full-text index, https://github.com/blevesearch/bleve) and the pure-Go SQLite driver `modernc.org/sqlite` (https://gitlab.com/cznic/sqlite). Their licenses apply as well.
+
 ## License
 
 AGPLv3, see [`LICENSE`](LICENSE).
