@@ -31,42 +31,60 @@
 
 <div id="app">
 
-    <!-- Menu-->
-    <nav id="mainNav">
-        <a class="navbar-brand" href="#">
-            <span class="d-block">:) Website builder</span>
-        </a>
-
-        <div class="row mt-lg-4">
-            <div class="col-sm-8 pb-2 overflow-x-hidden">
-                <page-tree ref="pageTree" sortable @component-event="componentEvent" />
+    <div class="app-with-sidebar">
+        <!-- Menu: static sidebar on large screens, off-canvas on small screens -->
+        <nav class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" aria-label="Pages">
+            <div class="offcanvas-header d-lg-none">
+                <span class="offcanvas-title fw-bold">:) Website builder</span>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target=".sidebar"
+                        aria-label="Close"></button>
             </div>
+
+            <div class="offcanvas-body d-block p-3">
+                <a class="navbar-brand d-none d-lg-block mb-3" href="#">:) Website builder</a>
+
+                <div class="row mt-lg-4">
+                    <div class="col-sm-8 pb-2 overflow-x-hidden">
+                        <page-tree ref="pageTree" sortable @component-event="componentEvent"/>
+                    </div>
+                </div>
+
+                <div class="row mt-lg-4">
+                    <div class="col-sm-8 pb-2">
+                        <button @click="addPage" class="btn"><i class="bi bi-file-earmark-plus"></i> Add page</button>
+                    </div>
+                    <div class="col-sm-8 pb-2">
+                        <button @click="openConfig" class="btn"><i class="bi bi-sliders"></i> Config</button>
+                    </div>
+                </div>
+
+
+            </div>
+        </nav>
+
+        <!-- Drag to resize the sidebar (large screens only) -->
+        <div class="d-none d-lg-block sidebarResizer" title="Drag to resize" @pointerdown="startSidebarResize"></div>
+
+
+        <!-- Content-->
+        <div class="container-fluid p-0 content">
+
+            <!-- Top bar with menu button (small screens only) -->
+            <header class="navbar bg-body-tertiary border-bottom sticky-top d-lg-none px-2">
+                <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target=".sidebar"
+                        aria-controls="sidebar" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
+                <a class="navbar-brand me-auto" href="#">:) Asset Storage</a>
+            </header>
+
+            <section>
+
+                <router-view v-slot="{ Component }">
+                    <component ref="mainView" :is="Component" @component-event="componentEvent"/>
+                </router-view>
+
+            </section>
         </div>
-
-        <div class="row mt-lg-4">
-            <div class="col-sm-8 pb-2">
-                <button @click="addPage" class="btn"><i class="bi bi-file-earmark-plus"></i> Add page</button>
-            </div>
-            <div class="col-sm-8 pb-2">
-                <button @click="openConfig" class="btn"><i class="bi bi-sliders"></i> Config</button>
-            </div>
-        </div>
-    </nav>
-
-
-    <!-- Content-->
-    <div class="container-fluid p-0" id="mainContent">
-
-        <section>
-
-            <router-view v-slot="{ Component }">
-                <component ref="mainView" :is="Component" @component-event="componentEvent" />
-            </router-view>
-
-        </section>
-
     </div>
-
 </div>
 
 <!-- Main App -->
@@ -87,6 +105,8 @@
 
     import AssetSelect from './js/asset-select.vue.js'
 
+    import UI from './js/ui.js'
+
     const routes = [
         {path: '/page/:id', component: PageView, props: true},
         {path: '/page/new/:parentId', component: PageView, props: true},
@@ -101,6 +121,17 @@
         history: createWebHashHistory(),
         routes
     });
+
+    // Small screens: close the off-canvas menu after navigating
+    router.afterEach(() => {
+        const sidebars = document.getElementsByClassName("sidebar");
+        for (const sidebar of sidebars) {
+            const offcanvas = sidebar && window.bootstrap && bootstrap.Offcanvas.getInstance(sidebar);
+            if (offcanvas)
+                offcanvas.hide();
+        }
+    });
+
 
     createApp({
 
@@ -175,6 +206,10 @@
             openConfig() {
                 location.hash = '/config';
             },
+
+            startSidebarResize(e) {
+                UI.startSidebarResize(e);
+            }
         },
 
         mounted() {

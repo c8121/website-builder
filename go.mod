@@ -6,7 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/c8121/asset-storage v0.0.1
 	github.com/c8121/go_db_entities v0.0.11
-	github.com/c8121/go_vue_spa v0.0.7
+	github.com/c8121/go_vue_spa v0.0.8
 	github.com/gin-gonic/gin v1.12.0
 	github.com/otiai10/copy v1.14.1
 	github.com/titpetric/vuego v0.11.0
@@ -93,5 +93,5 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_vue_spa v0.0.7 => ../go_vue_spa
+	github.com/c8121/go_vue_spa v0.0.8 => ../go_vue_spa
 )
