@@ -1,5 +1,4 @@
-import AssetStorageMain from './asset-storage-main.vue.js'
-import Dialog from './dialog.js'
+import { selectAssetDialog } from './asset-select-dialog.js'
 
 export default {
     template: `
@@ -44,24 +43,9 @@ export default {
     methods: {
 
         selectAsset() {
-            const self = this;
-
-            const response = fetch(new URL('./asset-storage-main.tpl.html', import.meta.url))
-                .then(response => response.text())
-                .then(html => {
-                    AssetStorageMain.template = html;
-
-
-                    const dialog = Dialog.create();
-                    dialog.setTitle("Test dialog");
-                    dialog.setContentComponent(AssetStorageMain, {
-                        downloadCallback: (url) => {
-                            console.log("Asset selected", url);
-                            this.$emit('update:modelValue', url);
-                            dialog.close();
-                        }
-                    });
-                });
+            selectAssetDialog("Select asset", (url) => {
+                this.$emit('update:modelValue', url);
+            });
         },
 
         urlChanged() {
