@@ -108,13 +108,13 @@ func (b *Builder) Build() {
 			return
 		}
 
-		err = templateParser.InsertMainNav()
+		err = templateParser.InsertMainNav(page)
 		if err != nil {
 			slog.Error("Failed to insert main nav", "path", outputDir, "err", err)
 			return
 		}
 
-		err = templateParser.PostProcess()
+		err = templateParser.PostProcess(page)
 		if err != nil {
 			slog.Error("Failed to parse document", "path", outputDir, "err", err)
 			return

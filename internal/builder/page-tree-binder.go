@@ -4,26 +4,29 @@ import (
 	"context"
 	"io"
 
+	"github.com/c8121/website-builder/internal/entity"
 	"github.com/titpetric/vuego"
 )
 
 type PageTreeBinder struct {
 	Config      *BuildConfig
+	Page        *entity.Page
 	vueRenderer vuego.Template
 }
 
-func NewPageTreeBinder(config *BuildConfig) *PageTreeBinder {
+func NewPageTreeBinder(page *entity.Page, config *BuildConfig) *PageTreeBinder {
 	vueRenderer := vuego.New()
 
 	return &PageTreeBinder{
 		Config:      config,
+		Page:        page,
 		vueRenderer: vueRenderer,
 	}
 }
 
 func (p *PageTreeBinder) Bind(html string, writer io.Writer) error {
 
-	pageTree, err := NewPageTree(p.Config).CreatePageTree()
+	pageTree, err := NewPageTree(p.Page, p.Config).CreatePageTree()
 	if err != nil {
 		return err
 	}

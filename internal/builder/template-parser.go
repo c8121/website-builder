@@ -16,12 +16,12 @@ type TemplateParser struct {
 	Config *BuildConfig
 }
 
-func NewTemplateParser(doc *goquery.Document, config *BuildConfig) *TemplateParser {
+func NewTemplateParser(doc *goquery.Document, config *BuildConfig) (*TemplateParser, error) {
 
 	return &TemplateParser{
 		doc:    doc,
 		Config: config,
-	}
+	}, nil
 }
 
 func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParser, error) {
@@ -31,11 +31,10 @@ func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParse
 		return nil, err
 	}
 
-	p := &TemplateParser{
-		doc:    goquery.NewDocumentFromNode(root),
-		Config: config,
-	}
-	return p, nil
+	return NewTemplateParser(
+		goquery.NewDocumentFromNode(root),
+		config,
+	)
 }
 
 func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error) {
@@ -86,7 +85,7 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
-			err = p.Config.JsonBinder.Bind(contentTemplate, content, parsed)
+			err = p.Config.JsonBinder.Bind(contentTemplate, page, &content, parsed)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err, "id", content.Id, "name", content.Name, "type", content.ContentType)
 				parsedContent = append(parsedContent, "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")
@@ -110,7 +109,7 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 	return nil
 }
 
-func (p *TemplateParser) InsertMainNav() error {
+func (p *TemplateParser) InsertMainNav(page *entity.Page) error {
 
 	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
 
@@ -120,7 +119,7 @@ func (p *TemplateParser) InsertMainNav() error {
 
 			s.Empty()
 
-			pageTreeBinder := NewPageTreeBinder(p.Config)
+			pageTreeBinder := NewPageTreeBinder(page, p.Config)
 
 			parsed := &bytes.Buffer{}
 			err := pageTreeBinder.Bind(template, parsed)
@@ -140,7 +139,7 @@ func (p *TemplateParser) InsertMainNav() error {
 	return nil
 }
 
-func (p *TemplateParser) PostProcess() error {
+func (p *TemplateParser) PostProcess(page *entity.Page) error {
 
 	postProcessors := &[]PostProcessor{
 		NewPostprocessorInsertAssets(p.Config),
@@ -150,7 +149,7 @@ func (p *TemplateParser) PostProcess() error {
 	}
 
 	for _, postProcessor := range *postProcessors {
-		err := postProcessor.Process(p.doc)
+		err := postProcessor.Process(page, p.doc)
 		if err != nil {
 			slog.Error("Failed to parse document", "error", err)
 		}

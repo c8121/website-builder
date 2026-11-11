@@ -22,7 +22,7 @@ func NewPostprocessorInsertPageLinks(config *BuildConfig) *PostprocessorInsertPa
 	}
 }
 
-func (p *PostprocessorInsertPageLinks) Process(doc *goquery.Document) error {
+func (p *PostprocessorInsertPageLinks) Process(page *entity.Page, doc *goquery.Document) error {
 	return traverseDocumentNodes(doc, func(n *html.Node) error {
 		for i, attr := range n.Attr {
 

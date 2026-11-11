@@ -5,20 +5,23 @@ import (
 )
 
 type TreeItem struct {
-	Page       *entity.Page
-	Name       string
-	PathName   string
-	Path       string
-	Children   []*TreeItem
-	IsHomePage bool
+	CurrentPage *entity.Page //Current page the builder is currently working on
+	Page        *entity.Page //Page this item is linked to
+	Name        string
+	PathName    string
+	Path        string
+	Children    []*TreeItem
+	IsHomePage  bool
 }
 
 type PageTree struct {
+	Page   *entity.Page
 	Config *BuildConfig
 }
 
-func NewPageTree(config *BuildConfig) *PageTree {
+func NewPageTree(page *entity.Page, config *BuildConfig) *PageTree {
 	return &PageTree{
+		Page:   page,
 		Config: config,
 	}
 }
@@ -50,12 +53,13 @@ func (p *PageTree) LoadPageTree(start *entity.Page) (*TreeItem, error) {
 	}
 
 	item := &TreeItem{
-		Page:       start,
-		Name:       start.Name,
-		PathName:   GetPageDirectoryName(*start),
-		Path:       path,
-		Children:   childTreeItems,
-		IsHomePage: p.Config.IsHomePage(start),
+		CurrentPage: p.Page,
+		Page:        start,
+		Name:        start.Name,
+		PathName:    GetPageDirectoryName(*start),
+		Path:        path,
+		Children:    childTreeItems,
+		IsHomePage:  p.Config.IsHomePage(start),
 	}
 
 	return item, nil

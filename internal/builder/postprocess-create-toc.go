@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/c8121/website-builder/internal/entity"
 	"golang.org/x/net/html"
 )
 
@@ -23,6 +24,8 @@ func NewPostprocessorCreateToc(config *BuildConfig) *PostprocessorCreateToc {
 }
 
 type tocItem struct {
+	Page *entity.Page
+
 	Number  int
 	Level   int
 	Name    string
@@ -32,7 +35,7 @@ type tocItem struct {
 	Children []*tocItem
 }
 
-func newTocItem(n *html.Node) *tocItem {
+func newTocItem(page *entity.Page, n *html.Node) *tocItem {
 
 	name := n.Data
 	if len(name) != 2 || (!strings.HasPrefix(name, "h") && !strings.HasPrefix(name, "H")) {
@@ -49,6 +52,7 @@ func newTocItem(n *html.Node) *tocItem {
 	nodeName := NormalizeAsFileName(text, "")
 
 	return &tocItem{
+		Page:     page,
 		Level:    level,
 		Name:     nodeName,
 		Caption:  text,
@@ -56,7 +60,7 @@ func newTocItem(n *html.Node) *tocItem {
 	}
 }
 
-func (p *PostprocessorCreateToc) Process(doc *goquery.Document) error {
+func (p *PostprocessorCreateToc) Process(page *entity.Page, doc *goquery.Document) error {
 
 	node, template := selectHtml(doc, ".toc")
 	if node == nil || template == "" {
@@ -64,6 +68,7 @@ func (p *PostprocessorCreateToc) Process(doc *goquery.Document) error {
 	}
 
 	root := &tocItem{
+		Page:     page,
 		Children: []*tocItem{},
 	}
 	lastItem := root
@@ -72,7 +77,7 @@ func (p *PostprocessorCreateToc) Process(doc *goquery.Document) error {
 	err := traverseDocumentNodes(doc, func(n *html.Node) error {
 
 		if n.Type == html.ElementNode {
-			item := newTocItem(n)
+			item := newTocItem(page, n)
 			if item != nil {
 
 				if item.Level < lastItem.Level {

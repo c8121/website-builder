@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/c8121/website-builder/internal/entity"
 	"golang.org/x/net/html"
 )
 
 type PostProcessor interface {
-	Process(doc *goquery.Document) error
+	Process(page *entity.Page, doc *goquery.Document) error
 }
 
 func traverseDocumentNodes(doc *goquery.Document, parseNode func(n *html.Node) error) error {

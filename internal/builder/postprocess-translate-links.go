@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/c8121/website-builder/internal/entity"
 	"golang.org/x/net/html"
 )
 
@@ -18,7 +19,7 @@ func NewPostprocessorTranslateLinks(config *BuildConfig) *PostprocessorTranslate
 	}
 }
 
-func (p *PostprocessorTranslateLinks) Process(doc *goquery.Document) error {
+func (p *PostprocessorTranslateLinks) Process(page *entity.Page, doc *goquery.Document) error {
 	return traverseDocumentNodes(doc, func(n *html.Node) error {
 		for i, attr := range n.Attr {
 

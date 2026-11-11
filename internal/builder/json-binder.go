@@ -47,11 +47,12 @@ func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
 }
 
 type BindContent struct {
-	Meta    entity.PageContent
+	Page    *entity.Page
+	Meta    *entity.PageContent
 	Content map[string]any
 }
 
-func (b *JsonBinder) Bind(html string, content entity.PageContent, writer io.Writer) error {
+func (b *JsonBinder) Bind(html string, page *entity.Page, content *entity.PageContent, writer io.Writer) error {
 
 	var data map[string]any
 	if content.Content != "" {
@@ -62,6 +63,7 @@ func (b *JsonBinder) Bind(html string, content entity.PageContent, writer io.Wri
 	}
 
 	bindContent := &BindContent{
+		Page:    page,
 		Meta:    content,
 		Content: data,
 	}
