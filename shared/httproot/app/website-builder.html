@@ -31,22 +31,19 @@
 
 <div id="app">
 
-    <div class="app-with-sidebar">
+    <div ref="resizeContainer" class="app-with-sidebar">
         <!-- Menu: static sidebar on large screens, off-canvas on small screens -->
         <nav class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" aria-label="Pages">
             <div class="offcanvas-header d-lg-none">
                 <span class="offcanvas-title fw-bold">:) Website builder</span>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target=".sidebar"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
 
             <div class="offcanvas-body d-block p-3">
                 <a class="navbar-brand d-none d-lg-block mb-3" href="#">:) Website builder</a>
 
-                <div class="row mt-lg-4">
-                    <div class="col-sm-8 pb-2 overflow-x-hidden">
-                        <page-tree ref="pageTree" sortable @component-event="componentEvent"/>
-                    </div>
+                <div class="overflow-x-scroll pb-3">
+                    <page-tree ref="pageTree" sortable @component-event="componentEvent"/>
                 </div>
 
                 <div class="row mt-lg-4">
@@ -63,7 +60,7 @@
         </nav>
 
         <!-- Drag to resize the sidebar (large screens only) -->
-        <div class="d-none d-lg-block sidebarResizer" title="Drag to resize" @pointerdown="startSidebarResize"></div>
+        <div class="d-none d-lg-block sidebarResizer" title="Drag to resize"></div>
 
 
         <!-- Content-->
@@ -71,9 +68,9 @@
 
             <!-- Top bar with menu button (small screens only) -->
             <header class="navbar bg-body-tertiary border-bottom sticky-top d-lg-none px-2">
-                <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target=".sidebar"
-                        aria-controls="sidebar" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
-                <a class="navbar-brand me-auto" href="#">:) Asset Storage</a>
+                <button class="btn btn-open" type="button" data-bs-toggle="offcanvas" aria-label="Menu"><i
+                        class="bi bi-list fs-4"></i></button>
+                <a class="navbar-brand me-auto" href="#">:) Website builder</a>
             </header>
 
             <section>
@@ -105,7 +102,7 @@
 
     import AssetSelect from './js/asset-select.vue.js'
 
-    import UI from './js/ui.js'
+    import ContainerWithResizer from './js/ui.js'
 
     const routes = [
         {path: '/page/:id', component: PageView, props: true},
@@ -214,6 +211,8 @@
 
         mounted() {
             this.loadNotifications();
+
+            ContainerWithResizer.create(this.$refs.resizeContainer)
         }
     })
         .component('page-tree', PageTree)
