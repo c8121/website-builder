@@ -4,6 +4,7 @@ export default {
 
     components: {
         HtmlEditor: defineAsyncComponent(() => import('./content-editor/html.vue.js')),
+        MarkdownEditor: defineAsyncComponent(() => import('./content-editor/md.vue.js')),
         TextEditor: defineAsyncComponent(() => import('./content-editor/text.vue.js')),
         ImageEditor: defineAsyncComponent(() => import('./content-editor/image.vue.js')),
         TestEditor: defineAsyncComponent(() => import('./content-editor/test.vue.js'))
@@ -62,6 +63,7 @@ export default {
             content: null,
             availableEditors: [
                 {caption: 'Rich-Text', name: 'Html', component: 'HtmlEditor'},
+                {caption: 'Markdown', name: 'Markdown', component: 'MarkdownEditor'},
                 {caption: 'Text', name: 'Text', component: 'TextEditor'},
                 {caption: 'Image', name: 'Image', component: 'ImageEditor'},
                 {caption: 'Test', name: 'Test', component: 'TestEditor'}

@@ -77,6 +77,12 @@
         <div v-html="Content.text"></div>
     </div>
 
+    <div class="tpl Markdown">
+        <h2>{{ Meta.Name }}</h2>
+        <pre>Page: {{ Page.Name }}</pre>
+        <div v-html="Content.text | md2html"></div>
+    </div>
+
     <div class="tpl Text">
         <h2>{{ Meta.Name }}</h2>
         <pre>Page: {{ Page.Name }}</pre>

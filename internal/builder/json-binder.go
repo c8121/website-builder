@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"strings"
 
+	converter2 "github.com/c8121/website-builder/internal/builder/converter"
 	"github.com/c8121/website-builder/internal/entity"
 	"github.com/titpetric/vuego"
 )
@@ -33,6 +34,15 @@ func NewJsonBinder(assetLoader *AssetLoader) *JsonBinder {
 
 		"replace": func(s string, find string, replace string) string {
 			return strings.Replace(s, find, replace, -1)
+		},
+
+		"md2html": func(s string) string {
+			converter := converter2.NewMarkdown2Html()
+			html, err := converter.Convert([]byte(s))
+			if err != nil {
+				slog.Warn("Convert failed", "error", err)
+			}
+			return string(html)
 		},
 	}
 

@@ -2,7 +2,7 @@ export default {
     template: `
         <div>
             <template v-if="editorContent">
-                <textarea v-model="editorContent.text" class="form-control"></textarea>
+                <textarea style="height: 50vh" v-model="editorContent.text" class="form-control"></textarea>
             </template>
         </div>
     `,

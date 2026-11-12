@@ -8,6 +8,7 @@ require (
 	github.com/c8121/go_db_entities v0.0.11
 	github.com/c8121/go_vue_spa v0.0.8
 	github.com/gin-gonic/gin v1.12.0
+	github.com/gomarkdown/markdown v0.0.0-20261109103609-13f93121d67a
 	github.com/otiai10/copy v1.14.1
 	github.com/titpetric/vuego v0.11.0
 	golang.org/x/net v0.62.0
