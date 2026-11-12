@@ -44,7 +44,7 @@ func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error)
 		return nil, err
 	}
 
-	content, err = insertSiteConfig(content, config)
+	content, err = preprocessTemplate(content, config)
 
 	root, err := html.Parse(bytes.NewReader(content))
 	if err != nil {
@@ -54,8 +54,7 @@ func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error)
 	return root, nil
 }
 
-// insertSiteConfig is a preparse step currently: could not figure how to parse goquery.Document or html.Node with vuego
-func insertSiteConfig(content []byte, config *BuildConfig) ([]byte, error) {
+func preprocessTemplate(content []byte, config *BuildConfig) ([]byte, error) {
 
 	siteConfig, err := entity.ListSiteConfig()
 	if err != nil {
@@ -63,7 +62,10 @@ func insertSiteConfig(content []byte, config *BuildConfig) ([]byte, error) {
 	}
 	configMap := entity.SiteConfigAsMap(siteConfig)
 
-	return []byte(ReplacePlaceholders(string(content), configMap)), nil
+	processed := ReplacePlaceholders(string(content), configMap)
+	processed = ReplacePhpBlocks(processed)
+
+	return []byte(processed), nil
 }
 
 func (p *TemplateParser) InsertContent(page *entity.Page) error {
@@ -160,12 +162,14 @@ func (p *TemplateParser) PostProcess(page *entity.Page) error {
 
 func (p *TemplateParser) Save(path string) error {
 
-	html, err := p.doc.Html()
+	htmlContent, err := p.doc.Html()
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(path, []byte(html), p.Config.FileMode)
+	htmlContent = RestorePhpBlocks(htmlContent)
+
+	err = os.WriteFile(path, []byte(htmlContent), p.Config.FileMode)
 	if err != nil {
 		return err
 	}
