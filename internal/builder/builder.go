@@ -7,7 +7,6 @@ import (
 
 	"github.com/c8121/go_vue_spa/util"
 	"github.com/c8121/website-builder/internal/entity"
-	"github.com/otiai10/copy"
 )
 
 // Builder creates the website
@@ -68,6 +67,7 @@ func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
 		return "", os.ErrNotExist
 	}
 
+	slog.Info("Select template", "path", path)
 	return path, nil
 }
 
@@ -83,7 +83,9 @@ func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, stri
 
 func (b *Builder) Build() {
 
-	err := b.CopyTemplate()
+	// CopyTemplate copies the whole TemplateDir to OutputBaseDir
+	cp := NewTemplateCopy(b.Config.TemplateDir, b.Config.OutputBaseDir, b.Config)
+	err := cp.Copy()
 	if err != nil {
 		slog.Error("Failed to copy template", "error", err)
 		return
@@ -142,16 +144,4 @@ func (b *Builder) Build() {
 			return
 		}
 	}))
-}
-
-// CopyTemplate copies the whole TemplateDir to OutputBaseDir
-func (b *Builder) CopyTemplate() error {
-
-	opts := copy.Options{
-		// No chmod
-		PermissionControl: copy.DoNothing,
-	}
-
-	slog.Info("Copy template", "src", b.Config.TemplateDir, "dst", b.Config.OutputBaseDir)
-	return copy.Copy(b.Config.TemplateDir, b.Config.OutputBaseDir, opts)
 }

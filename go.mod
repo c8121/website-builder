@@ -9,7 +9,6 @@ require (
 	github.com/c8121/go_vue_spa v0.0.8
 	github.com/gin-gonic/gin v1.12.0
 	github.com/gomarkdown/markdown v0.0.0-20261109103609-13f93121d67a
-	github.com/otiai10/copy v1.14.1
 	github.com/titpetric/vuego v0.11.0
 	golang.org/x/net v0.62.0
 	golang.org/x/text v0.44.0
@@ -72,7 +71,6 @@ require (
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
-	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.65.0 // indirect
@@ -87,7 +85,6 @@ require (
 	golang.org/x/arch v0.33.0 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/image v0.48.0 // indirect
-	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
