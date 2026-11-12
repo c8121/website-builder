@@ -14,6 +14,11 @@ export default {
                     <input v-model="page.Name" class="form-control">
                 </div>
                 
+                <div class="input-group mb-4">
+                    <label class="input-group-text">Template</label>
+                    <input v-model="page.TemplateFileName" class="form-control">
+                </div>
+                
                 <div class="card" v-if="page.Id">
                     <div class="card-header">Content</div>
                     <div class="card-body">
