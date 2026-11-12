@@ -45,6 +45,7 @@ func NormalizeAsFileName(name string, fallback string) string {
 	s = strings.Join(strings.Fields(s), "-")
 	s = replaceUmlautsGerman(s)
 	s = replaceIllegalCharacters(s)
+	s = strings.Trim(s, "-")
 	s = strings.ToLower(s)
 
 	if s == "" {
