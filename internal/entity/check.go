@@ -19,6 +19,10 @@ func CheckCreateTables() {
 		if err != nil {
 			slog.Error("Failed to create entity", "error", err)
 		}
+		err = go_db_entities.Validate(DbContext, entity)
+		if err != nil {
+			slog.Error("Failed to validate entity", "error", err)
+		}
 	}
 }
 
