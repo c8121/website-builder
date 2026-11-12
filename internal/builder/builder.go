@@ -59,12 +59,12 @@ func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
 		path = filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName)
 	} else {
 		path = filepath.Join(b.Config.TemplateDir, page.TemplateFileName)
-		if !util.IsExistingDirectory(path, slog.LevelError) {
+		if !util.IsExistingFile(path, slog.LevelError) {
 			path = filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName)
 		}
 	}
 
-	if !util.IsExistingDirectory(path, slog.LevelError) {
+	if !util.IsExistingFile(path, slog.LevelError) {
 		return "", os.ErrNotExist
 	}
 

@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
-	github.com/c8121/asset-storage v0.0.1
+	github.com/c8121/asset-storage v0.0.3
 	github.com/c8121/go_db_entities v0.0.12
 	github.com/c8121/go_vue_spa v0.0.8
 	github.com/gin-gonic/gin v1.12.0
@@ -15,10 +15,16 @@ require (
 	golang.org/x/text v0.44.0
 )
 
+replace (
+	github.com/c8121/asset-storage v0.0.3 => ../asset-storage
+	github.com/c8121/go_db_entities v0.0.12 => ../go_db_entities
+	github.com/c8121/go_vue_spa v0.0.8 => ../go_vue_spa
+)
+
 require (
 	github.com/HugoSmits86/nativewebp v1.3.0 // indirect
 	github.com/RoaringBitmap/roaring/v2 v2.30.0 // indirect
-	github.com/andybalholm/cascadia v1.3.4 // indirect
+	github.com/andybalholm/cascadia v1.3.5 // indirect
 	github.com/bits-and-blooms/bitset v1.29.0 // indirect
 	github.com/blevesearch/bleve/v2 v2.6.3 // indirect
 	github.com/blevesearch/bleve_index_api v1.4.1 // indirect
@@ -90,9 +96,4 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 	modernc.org/sqlite v1.62.0 // indirect
-)
-
-replace (
-	github.com/c8121/asset-storage v0.0.1 => ../asset-storage
-	github.com/c8121/go_vue_spa v0.0.8 => ../go_vue_spa
 )
