@@ -14,6 +14,8 @@ type Page struct {
 	ParentId int64  `dbe:"Index"`
 	Name     string `dbe:"Size: 1024, Index"`
 	Sort     int64
+
+	TemplateFileName string
 }
 
 func (p *Page) GetEntityName() string {

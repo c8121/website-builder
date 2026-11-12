@@ -53,7 +53,22 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 }
 
 func (b *Builder) SelectTemplate(page *entity.Page) (string, error) {
-	return filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName), nil
+
+	var path string
+	if page.TemplateFileName == "" {
+		path = filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName)
+	} else {
+		path = filepath.Join(b.Config.TemplateDir, page.TemplateFileName)
+		if !util.IsExistingDirectory(path, slog.LevelError) {
+			path = filepath.Join(b.Config.TemplateDir, b.Config.DefaultTemplateFileName)
+		}
+	}
+
+	if !util.IsExistingDirectory(path, slog.LevelError) {
+		return "", os.ErrNotExist
+	}
+
+	return path, nil
 }
 
 func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, string, error) {

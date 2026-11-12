@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log/slog"
+
 	assetstoragerestapi "github.com/c8121/asset-storage/shared/rest_api"
 	"github.com/c8121/go_vue_spa/util"
 	assetstoragespaserver "github.com/c8121/website-builder/internal/spa_server"
@@ -11,6 +13,8 @@ import (
 )
 
 func main() {
+
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 
 	boostrap.InitWebsiteBuilderApp()
 	defer boostrap.FinalizeWebsiteBuilderApp()
