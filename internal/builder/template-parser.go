@@ -56,7 +56,7 @@ func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error)
 
 func preprocessTemplate(content []byte, config *BuildConfig) ([]byte, error) {
 
-	siteConfig, err := entity.ListSiteConfig()
+	siteConfig, err := entity.ListSiteConfig(entity.NewSession())
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func preprocessTemplate(content []byte, config *BuildConfig) ([]byte, error) {
 
 func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
-	contents, err := entity.ListPageContents(page.Id)
+	contents, err := entity.ListPageContents(entity.NewSession(), page.Id)
 	if err != nil {
 		return err
 	}

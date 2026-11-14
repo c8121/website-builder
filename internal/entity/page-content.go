@@ -35,7 +35,7 @@ func (p *PageContent) SetSort(sort int64) {
 	p.Sort = sort
 }
 
-func ListPageContents(parentId int64) ([]PageContent, error) {
+func ListPageContents(session *go_db_entities.Session, parentId int64) ([]PageContent, error) {
 
 	filter := go_db_entities.NewFilter("PageId", go_db_entities.CompareEqual, parentId)
 	filter.OrderBy = []string{"Sort", "Id"}
@@ -44,7 +44,7 @@ func ListPageContents(parentId int64) ([]PageContent, error) {
 		return &PageContent{}
 	}
 
-	items, err := go_db_entities.Select(DbContext, pageSupplier, *filter)
+	items, err := go_db_entities.Select(session, pageSupplier, *filter)
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
 		return nil, err
 	}

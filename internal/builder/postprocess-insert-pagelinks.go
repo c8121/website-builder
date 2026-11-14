@@ -69,7 +69,7 @@ func (p *PostprocessorInsertPageLinks) createPageLink(url string) string {
 	}
 
 	page := &entity.Page{}
-	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(int64(id)))
+	err = go_db_entities.Load(entity.NewSession(), page, *go_db_entities.NewIdFilter(int64(id)))
 	if err != nil {
 		slog.Warn("Failed to load page", "url", url, "err", err)
 		return url

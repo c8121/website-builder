@@ -21,7 +21,7 @@ func GetPageContent(c *gin.Context) {
 	}
 
 	page := &entity.PageContent{}
-	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(id))
+	err = go_db_entities.Load(entity.NewSession(), page, *go_db_entities.NewIdFilter(id))
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusNotFound, "failed to load content", err)
 		return
@@ -37,7 +37,7 @@ func ListPageContents(c *gin.Context) {
 		pageId = 0
 	}
 
-	items, err := entity.ListPageContents(pageId)
+	items, err := entity.ListPageContents(entity.NewSession(), pageId)
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load content", err)
 		return
@@ -70,7 +70,14 @@ func AddPageContent(c *gin.Context) {
 		return
 	}
 
-	req.Sort, err = findValidPageContentSort(req)
+	session, tx, err := entity.NewSessionTx()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to create transaction", err)
+		return
+	}
+	defer tx.Rollback() // no effect after Commit (returns sql.ErrTxDone, which can be ignored)
+
+	req.Sort, err = findValidPageContentSort(session, req)
 	if errors.Is(err, go_db_entities.ErrNotFound) {
 		util.AbortWithStatus(c, http.StatusNotFound, "content not found", err)
 		return
@@ -80,26 +87,32 @@ func AddPageContent(c *gin.Context) {
 		return
 	}
 
-	err = go_db_entities.Save(entity.DbContext, req)
+	err = go_db_entities.Save(session, req)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to save entity", err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to commit transaction", err)
 		return
 	}
 
 	c.IndentedJSON(http.StatusOK, req)
 }
 
-func findValidPageContentSort(content *entity.PageContent) (int64, error) {
+func findValidPageContentSort(session *go_db_entities.Session, content *entity.PageContent) (int64, error) {
 
 	// New contents are appended to the end of the page's contents
 	if content.Id == 0 {
-		return nextPageContentSort(content.PageId)
+		return nextPageContentSort(session, content.PageId)
 	}
 
 	// Sort is managed by the reorder-endpoint, do not trust the client's (possibly stale) value.
 	// A content moved to another page is appended to the end of that page's contents.
 	existing := &entity.PageContent{}
-	err := go_db_entities.Load(entity.DbContext, existing, *go_db_entities.NewIdFilter(content.Id))
+	err := go_db_entities.Load(session, existing, *go_db_entities.NewIdFilter(content.Id))
 	if err != nil {
 		return 0, err
 	}
@@ -107,13 +120,13 @@ func findValidPageContentSort(content *entity.PageContent) (int64, error) {
 		return existing.Sort, nil
 	}
 
-	return nextPageContentSort(content.PageId)
+	return nextPageContentSort(session, content.PageId)
 }
 
 // nextPageContentSort returns the Sort value for a content appended to the end of pageId's contents.
-func nextPageContentSort(pageId int64) (int64, error) {
+func nextPageContentSort(session *go_db_entities.Session, pageId int64) (int64, error) {
 
-	contents, err := entity.ListPageContents(pageId)
+	contents, err := entity.ListPageContents(session, pageId)
 	if err != nil {
 		return 0, err
 	}
@@ -144,19 +157,32 @@ func ReorderPageContents(c *gin.Context) {
 		return
 	}
 
-	contents, err := entity.ListPageContents(req.PageId)
+	session, tx, err := entity.NewSessionTx()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to create transaction", err)
+		return
+	}
+	defer tx.Rollback() // no effect after Commit (returns sql.ErrTxDone, which can be ignored)
+
+	contents, err := entity.ListPageContents(session, req.PageId)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load contents", err)
 		return
 	}
 
-	err = entity.Sort(contents, req.Ids)
+	err = entity.Sort(session, contents, req.Ids)
 	if errors.Is(err, entity.ErrSortMismatch) {
 		util.AbortWithStatus(c, http.StatusBadRequest, "Ids do not match the existing contents", err)
 		return
 	}
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort contents", err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to commit transaction", err)
 		return
 	}
 
@@ -175,13 +201,13 @@ func DeletePageContent(c *gin.Context) {
 	}
 
 	page := &entity.PageContent{}
-	err = go_db_entities.Load(entity.DbContext, page, *go_db_entities.NewIdFilter(id))
+	err = go_db_entities.Load(entity.NewSession(), page, *go_db_entities.NewIdFilter(id))
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusNotFound, "failed to load page", err)
 		return
 	}
 
-	err = go_db_entities.Delete(entity.DbContext, page)
+	err = go_db_entities.Delete(entity.NewSession(), page)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "failed to delete page", err)
 	}

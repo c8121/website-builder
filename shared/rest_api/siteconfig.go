@@ -20,7 +20,7 @@ func GetSiteConfig(c *gin.Context) {
 	}
 
 	siteConfig := &entity.SiteConfig{}
-	err = go_db_entities.Load(entity.DbContext, siteConfig, *go_db_entities.NewIdFilter(id))
+	err = go_db_entities.Load(entity.NewSession(), siteConfig, *go_db_entities.NewIdFilter(id))
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusNotFound, "failed to load site", err)
 		return
@@ -31,7 +31,7 @@ func GetSiteConfig(c *gin.Context) {
 
 func ListSiteConfig(c *gin.Context) {
 
-	items, err := entity.ListSiteConfig()
+	items, err := entity.ListSiteConfig(entity.NewSession())
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load sites", err)
 		return
@@ -54,31 +54,44 @@ func AddSiteConfig(c *gin.Context) {
 		return
 	}
 
-	req.Sort, err = findValidSiteConfigSort(req)
+	session, tx, err := entity.NewSessionTx()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to create transaction", err)
+		return
+	}
+	defer tx.Rollback() // no effect after Commit (returns sql.ErrTxDone, which can be ignored)
+
+	req.Sort, err = findValidSiteConfigSort(session, req)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort", err)
 		return
 	}
 
-	err = go_db_entities.Save(entity.DbContext, req)
+	err = go_db_entities.Save(session, req)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to save entity", err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to commit transaction", err)
 		return
 	}
 
 	c.IndentedJSON(http.StatusOK, req)
 }
 
-func findValidSiteConfigSort(siteConfig *entity.SiteConfig) (int64, error) {
+func findValidSiteConfigSort(session *go_db_entities.Session, siteConfig *entity.SiteConfig) (int64, error) {
 
 	// New sites are appended to the end of their siblings
 	if siteConfig.Id == 0 {
-		return nextSiteConfigSort()
+		return nextSiteConfigSort(session)
 	}
 
 	// Sort is managed by the reorder-endpoint, do not trust the client's (possibly stale) value.
 	existing := &entity.SiteConfig{}
-	err := go_db_entities.Load(entity.DbContext, existing, *go_db_entities.NewIdFilter(siteConfig.Id))
+	err := go_db_entities.Load(session, existing, *go_db_entities.NewIdFilter(siteConfig.Id))
 	if err != nil {
 		return 0, err
 	}
@@ -86,9 +99,9 @@ func findValidSiteConfigSort(siteConfig *entity.SiteConfig) (int64, error) {
 }
 
 // nextSiteConfigSort returns the Sort value for a site appended to the end of sites liste.
-func nextSiteConfigSort() (int64, error) {
+func nextSiteConfigSort(session *go_db_entities.Session) (int64, error) {
 
-	siteConfigs, err := entity.ListSiteConfig()
+	siteConfigs, err := entity.ListSiteConfig(session)
 	if err != nil {
 		return 0, err
 	}
@@ -113,19 +126,32 @@ func ReorderSiteConfigs(c *gin.Context) {
 		return
 	}
 
-	siteConfigs, err := entity.ListSiteConfig()
+	session, tx, err := entity.NewSessionTx()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to create transaction", err)
+		return
+	}
+	defer tx.Rollback() // no effect after Commit (returns sql.ErrTxDone, which can be ignored)
+
+	siteConfigs, err := entity.ListSiteConfig(session)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to load configs", err)
 		return
 	}
 
-	err = entity.Sort(siteConfigs, req.Ids)
+	err = entity.Sort(session, siteConfigs, req.Ids)
 	if errors.Is(err, entity.ErrSortMismatch) {
 		util.AbortWithStatus(c, http.StatusBadRequest, "Ids do not match the existing configs", err)
 		return
 	}
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to sort configs", err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		util.AbortWithStatus(c, http.StatusInternalServerError, "Failed to commit transaction", err)
 		return
 	}
 
@@ -144,13 +170,13 @@ func DeleteSiteConfig(c *gin.Context) {
 	}
 
 	siteConfig := &entity.SiteConfig{}
-	err = go_db_entities.Load(entity.DbContext, siteConfig, *go_db_entities.NewIdFilter(id))
+	err = go_db_entities.Load(entity.NewSession(), siteConfig, *go_db_entities.NewIdFilter(id))
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusNotFound, "failed to load site", err)
 		return
 	}
 
-	err = go_db_entities.Delete(entity.DbContext, siteConfig)
+	err = go_db_entities.Delete(entity.NewSession(), siteConfig)
 	if err != nil {
 		util.AbortWithStatus(c, http.StatusInternalServerError, "failed to delete site config", err)
 	}

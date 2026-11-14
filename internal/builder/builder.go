@@ -91,7 +91,9 @@ func (b *Builder) Build() {
 		return
 	}
 
-	util.LogError(entity.WalkPages(func(page *entity.Page) {
+	session := entity.NewSession()
+
+	util.LogError(entity.WalkPages(session, func(page *entity.Page) {
 
 		var outputDir string
 		var err error

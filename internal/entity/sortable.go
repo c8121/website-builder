@@ -24,7 +24,7 @@ func Sort[T any, PT interface {
 	*T
 	go_db_entities.Entity
 	Sortable
-}](items []T, ids []int64) error {
+}](session *go_db_entities.Session, items []T, ids []int64) error {
 
 	if len(ids) != len(items) {
 		return ErrSortMismatch
@@ -45,7 +45,7 @@ func Sort[T any, PT interface {
 
 		item.SetSort(int64(i + 1))
 
-		err := go_db_entities.Save(DbContext, item)
+		err := go_db_entities.Save(session, item)
 		if err != nil {
 			return err
 		}

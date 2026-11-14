@@ -14,12 +14,14 @@ func CheckCreateTables() {
 		&SiteConfig{},
 	}
 
+	session := NewSession()
+
 	for _, entity := range entities {
-		err := go_db_entities.Create(DbContext, entity)
+		err := go_db_entities.Create(session, entity)
 		if err != nil {
 			slog.Error("Failed to create entity", "error", err)
 		}
-		err = go_db_entities.Validate(DbContext, entity)
+		err = go_db_entities.Validate(session, entity)
 		if err != nil {
 			slog.Error("Failed to validate entity", "error", err)
 		}
@@ -28,7 +30,9 @@ func CheckCreateTables() {
 
 func CreateDefaultSiteConfig() {
 
-	list, err := ListSiteConfig()
+	session := NewSession()
+
+	list, err := ListSiteConfig(session)
 	if err != nil {
 		slog.Error("Cannot create default config", "error", err)
 		return
@@ -49,7 +53,7 @@ func CreateDefaultSiteConfig() {
 			Name:  name,
 			Value: value,
 		}
-		err := go_db_entities.Save(DbContext, config)
+		err := go_db_entities.Save(session, config)
 		if err != nil {
 			slog.Error("Failed to save default config", "name", name, "value", value, "error", err)
 		}

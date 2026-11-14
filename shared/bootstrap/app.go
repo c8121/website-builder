@@ -27,7 +27,7 @@ func InitWebsiteBuilderApp() {
 
 	assetstoragebootstrap.OpenDatabase()
 
-	entity.DbContext = go_db_entities.NewContext(
+	entity.Storage = go_db_entities.NewStorage(
 		assetstoragebootstrap.GetDatabase(),
 		sqlite.NewQueryBuilder(),
 		sqlite.NewFieldMapping(),

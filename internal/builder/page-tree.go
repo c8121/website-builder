@@ -32,7 +32,7 @@ func (p *PageTree) CreatePageTree() (*TreeItem, error) {
 
 func (p *PageTree) LoadPageTree(start *entity.Page) (*TreeItem, error) {
 
-	children, err := entity.ListPages(start.Id)
+	children, err := entity.ListPages(entity.NewSession(), start.Id)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/c8121/asset-storage v0.0.3
-	github.com/c8121/go_db_entities v0.0.12
+	github.com/c8121/go_db_entities v0.1.0
 	github.com/c8121/go_vue_spa v0.0.8
 	github.com/gin-gonic/gin v1.12.0
 	github.com/gomarkdown/markdown v0.0.0-20261109103609-13f93121d67a
@@ -16,7 +16,6 @@ require (
 
 replace (
 	github.com/c8121/asset-storage v0.0.3 => ../asset-storage
-	github.com/c8121/go_db_entities v0.0.12 => ../go_db_entities
 	github.com/c8121/go_vue_spa v0.0.8 => ../go_vue_spa
 )
 

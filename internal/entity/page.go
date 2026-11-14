@@ -38,7 +38,7 @@ func (p *Page) SetSort(sort int64) {
 	p.Sort = sort
 }
 
-func ListPages(parentId int64) ([]Page, error) {
+func ListPages(session *go_db_entities.Session, parentId int64) ([]Page, error) {
 
 	filter := go_db_entities.NewFilter("ParentId", go_db_entities.CompareEqual, parentId)
 	filter.OrderBy = []string{"Sort", "Id"}
@@ -47,7 +47,7 @@ func ListPages(parentId int64) ([]Page, error) {
 		return &Page{}
 	}
 
-	items, err := go_db_entities.Select(DbContext, pageSupplier, *filter)
+	items, err := go_db_entities.Select(session, pageSupplier, *filter)
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
 		return nil, err
 	}
@@ -63,9 +63,9 @@ func ListPages(parentId int64) ([]Page, error) {
 }
 
 // CheckForCycle check if moving a page would make it its own ancestor.
-func CheckForCycle(page *Page) error {
+func CheckForCycle(session *go_db_entities.Session, page *Page) error {
 	var children []Page
-	err := LoadAllChildren(page.Id, &children)
+	err := LoadAllChildren(session, page.Id, &children)
 	if err != nil {
 		return err
 	}
@@ -77,20 +77,20 @@ func CheckForCycle(page *Page) error {
 	return nil
 }
 
-func LoadAllChildren(parentId int64, into *[]Page) error {
+func LoadAllChildren(session *go_db_entities.Session, parentId int64, into *[]Page) error {
 
 	if into == nil {
 		return fmt.Errorf("into-parameter is nil")
 	}
 
-	children, err := ListPages(parentId)
+	children, err := ListPages(session, parentId)
 	if err != nil {
 		return err
 	}
 
 	for _, child := range children {
 		*into = append(*into, child)
-		err = LoadAllChildren(child.Id, into)
+		err = LoadAllChildren(session, child.Id, into)
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func LoadAllChildren(parentId int64, into *[]Page) error {
 	return nil
 }
 
-func LoadPagePath(pageId int64) ([]Page, error) {
+func LoadPagePath(session *go_db_entities.Session, pageId int64) ([]Page, error) {
 
 	path := make([]Page, 0)
 
@@ -108,7 +108,7 @@ func LoadPagePath(pageId int64) ([]Page, error) {
 	for page == nil || pageId > 0 {
 
 		page = &Page{}
-		err := go_db_entities.Load(DbContext, page, *go_db_entities.NewIdFilter(pageId))
+		err := go_db_entities.Load(session, page, *go_db_entities.NewIdFilter(pageId))
 		if err != nil {
 			return nil, err
 		}
@@ -122,19 +122,19 @@ func LoadPagePath(pageId int64) ([]Page, error) {
 
 }
 
-func WalkPages(handler func(page *Page)) error {
-	return walkPages(0, handler)
+func WalkPages(session *go_db_entities.Session, handler func(page *Page)) error {
+	return walkPages(session, 0, handler)
 }
 
-func walkPages(parentId int64, handler func(page *Page)) error {
-	children, err := ListPages(parentId)
+func walkPages(session *go_db_entities.Session, parentId int64, handler func(page *Page)) error {
+	children, err := ListPages(session, parentId)
 	if err != nil {
 		return err
 	}
 
 	for _, child := range children {
 		handler(&child)
-		util.LogError(walkPages(child.Id, handler))
+		util.LogError(walkPages(session, child.Id, handler))
 	}
 
 	return nil

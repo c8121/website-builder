@@ -21,7 +21,7 @@ var (
 
 func GetPageDirectoryPath(page *entity.Page) (string, error) {
 
-	path, err := entity.LoadPagePath(page.Id)
+	path, err := entity.LoadPagePath(entity.NewSession(), page.Id)
 	if err != nil {
 		return "", err
 	}

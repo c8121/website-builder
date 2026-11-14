@@ -33,7 +33,7 @@ func (s *SiteConfig) SetSort(sort int64) {
 	s.Sort = sort
 }
 
-func ListSiteConfig() ([]SiteConfig, error) {
+func ListSiteConfig(session *go_db_entities.Session) ([]SiteConfig, error) {
 
 	filter := &go_db_entities.Filter{}
 	filter.OrderBy = []string{"Sort", "Id"}
@@ -42,7 +42,7 @@ func ListSiteConfig() ([]SiteConfig, error) {
 		return &SiteConfig{}
 	}
 
-	items, err := go_db_entities.Select(DbContext, siteConfigSupplier, *filter)
+	items, err := go_db_entities.Select(session, siteConfigSupplier, *filter)
 	if err != nil && !errors.Is(go_db_entities.ErrNotFound, err) {
 		return nil, err
 	}
