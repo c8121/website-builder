@@ -12,6 +12,8 @@ import (
 // Builder creates the website
 type Builder struct {
 	Config *BuildConfig
+
+	preprocessor *TemplatePreprocessor
 }
 
 func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
@@ -44,8 +46,14 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 
 	config.JsonBinder = NewJsonBinder(config.AssetLoader)
 
+	preprocessor, err := NewTemplatePreprocessor(config)
+	if err != nil {
+		return nil, err
+	}
+
 	builder := &Builder{
-		Config: config,
+		Config:       config,
+		preprocessor: preprocessor,
 	}
 
 	return builder, nil
@@ -77,7 +85,12 @@ func (b *Builder) CreateTemplateParser(page *entity.Page) (*TemplateParser, stri
 		return nil, "", err
 	}
 
-	parser, err := NewTemplateParserFromFile(templateFile, b.Config)
+	template, err := b.preprocessor.Preprocess(templateFile)
+	if err != nil {
+		return nil, "", err
+	}
+
+	parser, err := NewTemplateParserFromFile(template, b.Config)
 	return parser, templateFile, err
 }
 

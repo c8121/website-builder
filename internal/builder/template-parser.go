@@ -24,9 +24,9 @@ func NewTemplateParser(doc *goquery.Document, config *BuildConfig) (*TemplatePar
 	}, nil
 }
 
-func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParser, error) {
+func NewTemplateParserFromFile(template []byte, config *BuildConfig) (*TemplateParser, error) {
 
-	root, err := loadAndPreprocessFile(path, config)
+	root, err := html.Parse(bytes.NewReader(template))
 	if err != nil {
 		return nil, err
 	}
@@ -35,37 +35,6 @@ func NewTemplateParserFromFile(path string, config *BuildConfig) (*TemplateParse
 		goquery.NewDocumentFromNode(root),
 		config,
 	)
-}
-
-func loadAndPreprocessFile(path string, config *BuildConfig) (*html.Node, error) {
-
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	content, err = preprocessTemplate(content, config)
-
-	root, err := html.Parse(bytes.NewReader(content))
-	if err != nil {
-		return nil, err
-	}
-
-	return root, nil
-}
-
-func preprocessTemplate(content []byte, config *BuildConfig) ([]byte, error) {
-
-	siteConfig, err := entity.ListSiteConfig(entity.NewSession())
-	if err != nil {
-		return nil, err
-	}
-	configMap := entity.SiteConfigAsMap(siteConfig)
-
-	processed := ReplacePlaceholders(string(content), configMap)
-	processed = ReplacePhpBlocks(processed)
-
-	return []byte(processed), nil
 }
 
 func (p *TemplateParser) InsertContent(page *entity.Page) error {
