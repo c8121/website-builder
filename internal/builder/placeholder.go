@@ -3,7 +3,6 @@ package builder
 import (
 	"encoding/base64"
 	"fmt"
-	"log/slog"
 	"regexp"
 )
 
@@ -33,7 +32,6 @@ func ReplacePhpBlocks(s string) string {
 
 func RestorePhpBlocks(s string) string {
 	return phpRestoreBlockRe.ReplaceAllStringFunc(s, func(match string) string {
-		slog.Info("php", "php", match)
 		php := phpRestoreBlockRe.FindStringSubmatch(match)[1]
 		dec, err := base64.StdEncoding.DecodeString(php)
 		if err != nil {

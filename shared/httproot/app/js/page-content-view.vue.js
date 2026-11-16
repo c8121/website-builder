@@ -21,6 +21,13 @@ export default {
                 <div class="mb-2">
                     <page-select v-model="content.PageId" ref="pageSelect" label="Page" @component-event="treeEvent" />
                 </div>
+                <div class="input-group mb-4">
+                    <label class="input-group-text">Slot</label>
+                    <select v-model="content.Slot" class="form-select">
+                        <option value=""></option>
+                        <option value="right">right</option>
+                    </select>
+                </div>
 
                 <div class="input-group mb-4">
                     <label class="input-group-text">Name</label>

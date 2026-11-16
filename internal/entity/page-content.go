@@ -12,6 +12,7 @@ type PageContent struct {
 	Name        string `dbe:"Size: 1024, Index"`
 	ContentType string
 	Content     string
+	Slot        string //where to place the content in template
 	Sort        int64
 }
 

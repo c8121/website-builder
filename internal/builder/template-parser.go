@@ -4,10 +4,16 @@ import (
 	"bytes"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/c8121/website-builder/internal/entity"
 	"golang.org/x/net/html"
+)
+
+const (
+	SlotCssClassPrefix = "slot-"
+	DefaultSlotName    = "default"
 )
 
 // TemplateParser takes a html-template and inserts content of pages (entity.Page)
@@ -44,40 +50,76 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 		return err
 	}
 
-	parsedContent := make([]string, 0)
+	parsedContent := make(map[string][]string)
 
 	for _, content := range contents {
-		slog.Info("Insert content", "id", content.Id, "name", content.Name, "type", content.ContentType)
+
+		slot := strings.TrimSpace(content.Slot)
+		if slot == "" {
+			slot = DefaultSlotName
+		}
+
+		slog.Info("Create content", "id", content.Id, "name", content.Name, "type", content.ContentType, "slot", slot)
 
 		_, contentTemplate := selectHtml(p.doc, ".tpl."+content.ContentType)
 
 		if contentTemplate == "" {
 			slog.Warn("No template found", "id", content.Id, "name", content.Name, "type", content.ContentType)
-			parsedContent = append(parsedContent, "<pre>"+content.Content+"</pre>")
+			parsedContent[slot] = append(parsedContent[slot], "<pre>"+content.Content+"</pre>")
 		} else {
 			parsed := &bytes.Buffer{}
 			err = p.Config.JsonBinder.Bind(contentTemplate, page, &content, parsed)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err, "id", content.Id, "name", content.Name, "type", content.ContentType)
-				parsedContent = append(parsedContent, "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")
+				parsedContent[slot] = append(parsedContent[slot], "<pre>"+err.Error()+"</pre><pre>"+content.Content+"</pre>")
 			} else {
-				parsedContent = append(parsedContent, parsed.String())
+				parsedContent[slot] = append(parsedContent[slot], parsed.String())
 			}
 		}
 	}
 
+	slog.Info("Insert", "page", page.Id)
+
 	p.doc.Find(".page-content").Each(func(i int, s *goquery.Selection) {
 
-		slog.Info("Insert", "page", page.Id)
 		s.Empty()
 
-		for _, content := range parsedContent {
+		css, _ := s.Attr("class")
+		slot := p.extractSlotName(css)
+		if slot == "" {
+			slot = DefaultSlotName
+		}
+
+		list, ok := parsedContent[slot]
+		if !ok {
+			slog.Warn("No content items.", "slot", slot)
+			return
+		}
+
+		slog.Info("Insert content", "slot", slot, "items", len(list))
+
+		for _, content := range list {
 			s.AppendHtml("\n<!-- PageContent -->\n")
 			s.AppendHtml(content)
 		}
 	})
 
 	return nil
+}
+
+func (p *TemplateParser) extractSlotName(cssClasses string) string {
+
+	i := strings.Index(cssClasses, SlotCssClassPrefix)
+	if i < 0 {
+		return ""
+	}
+
+	slot := cssClasses[i+len(SlotCssClassPrefix):]
+	i = strings.IndexAny(slot, " '\"\t")
+	if i > 0 {
+		slot = slot[:i]
+	}
+	return slot
 }
 
 func (p *TemplateParser) InsertMainNav(page *entity.Page) error {
