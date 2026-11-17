@@ -46,13 +46,9 @@
                     <page-tree ref="pageTree" sortable @component-event="componentEvent"/>
                 </div>
 
-                <div class="row mt-lg-4">
-                    <div class="col-sm-8 pb-2">
-                        <button @click="addPage" class="btn"><i class="bi bi-file-earmark-plus"></i> Add page</button>
-                    </div>
-                    <div class="col-sm-8 pb-2">
-                        <button @click="openConfig" class="btn"><i class="bi bi-sliders"></i> Config</button>
-                    </div>
+                <div class="mt-4">
+                    <button @click="addPage" class="btn btn-outline-secondary w-100 mb-2"><i class="bi bi-file-earmark-plus"></i> Add page</button>
+                    <button @click="openConfig" class="btn btn-outline-secondary w-100"><i class="bi bi-sliders"></i> Config</button>
                 </div>
 
 
@@ -174,6 +170,18 @@
                     case 'addContent': {
                         const page = arguments[2]
                         location.hash = '/content/new/' + page.Id;
+                        break;
+                    }
+
+                    case 'pageContentSaved' : {
+                        const content = arguments[2]
+                        location.hash = '/content/' + content.Id;
+                        break;
+                    }
+
+                    case 'pageContentDeleted': {
+                        const msg = arguments[2]
+                        location.hash = '/page/' + msg.PageId;
                         break;
                     }
 

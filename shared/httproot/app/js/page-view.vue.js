@@ -180,7 +180,7 @@ export default {
                 .then(json => {
                     if (json.Status && json.Status === 'ok') {
                         self.page = null
-                        this.$emit('componentEvent', 'pageDeleted', 'page-view', json);
+                        self.$emit('componentEvent', 'pageDeleted', 'page-view', json);
                     } else if (json.Message) {
                         alert(json.Message)
                     }

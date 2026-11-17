@@ -189,7 +189,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.content = json
-                        this.$emit('componentEvent', 'pageContentSaved', 'page-content-view', self.content);
+                        self.$emit('componentEvent', 'pageContentSaved', 'page-content-view', self.content);
                     } else if (json.Message) {
                         alert(json.Message)
                     }
@@ -213,8 +213,9 @@ export default {
                 .then(res => res.json())
                 .then(json => {
                     if (json.Status && json.Status === 'ok') {
+                        json.PageId = self.content.PageId
                         self.content = null
-                        this.$emit('componentEvent', 'pageDeleted', 'page-content-view', json);
+                        self.$emit('componentEvent', 'pageContentDeleted', 'page-content-view', json);
                     } else if (json.Message) {
                         alert(json.Message)
                     }
