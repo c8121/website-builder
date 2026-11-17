@@ -21,24 +21,34 @@ export default {
                 <div class="mb-2">
                     <page-select v-model="content.PageId" ref="pageSelect" label="Page" @component-event="treeEvent" />
                 </div>
-                <div class="input-group mb-4">
-                    <label class="input-group-text">Slot</label>
-                    <select v-model="content.Slot" class="form-select">
-                        <option value=""></option>
-                        <option value="right">right</option>
-                    </select>
-                </div>
-
+                
                 <div class="input-group mb-4">
                     <label class="input-group-text">Name</label>
                     <input v-model="content.Name" class="form-control">
                 </div>
                 
-                <div>
-                    <select v-model="selectedEditor" class="form-select">
-                        <option :value="null"></option>
-                        <option v-for="editor in availableEditors" :value="editor">{{ editor.caption }}</option>
-                    </select>
+                <div class="row">
+                    <div class="col">
+                        <div class="input-group mb-4">
+                            <label class="input-group-text">Type</label>
+                            <select v-model="selectedEditor" class="form-select">
+                                <option :value="null"></option>
+                                <option v-for="editor in availableEditors" :value="editor">{{ editor.caption }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-group mb-4">
+                            <label class="input-group-text">Slot</label>
+                            <select v-model="content.Slot" class="form-select">
+                                <option value=""></option>
+                                <option value="left">left</option>
+                                <option value="right">right</option>
+                                <option value="top">top</option>
+                                <option value="bottom">bottom</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="mt-4">

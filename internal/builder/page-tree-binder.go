@@ -24,9 +24,9 @@ func NewPageTreeBinder(page *entity.Page, config *BuildConfig) *PageTreeBinder {
 	}
 }
 
-func (p *PageTreeBinder) Bind(html string, writer io.Writer) error {
+func (p *PageTreeBinder) Bind(html string, writer io.Writer, pageVisibility int) error {
 
-	pageTree, err := NewPageTree(p.Page, p.Config).CreatePageTree()
+	pageTree, err := NewPageTree(p.Page, p.Config, pageVisibility).CreatePageTree()
 	if err != nil {
 		return err
 	}

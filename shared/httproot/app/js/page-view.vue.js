@@ -9,15 +9,39 @@ export default {
                     <page-select v-model="page.ParentId" ref="pageSelect" label="Parent" @component-event="treeEvent" />
                 </div>
 
-                <div class="input-group mb-2">
+                <div class="input-group mb-4">
                     <label class="input-group-text">Name</label>
                     <input v-model="page.Name" class="form-control">
                 </div>
                 
-                <div class="input-group mb-4">
-                    <label class="input-group-text">Template</label>
-                    <input v-model="page.TemplateFileName" class="form-control">
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="input-group">
+                            <label class="input-group-text">Visibility</label>
+                            <select v-model="page.Visibility" class="form-select">
+                                <option :value="0"></option>
+                                <option :value="1">Visible</option>
+                                <option :value="2">Sitemap only (hidden in main nav)</option>
+                                <option :value="4">Hidden</option>
+                                <option :value="8">Ignore (don't create contents)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-group">
+                            <label class="input-group-text">Template</label>
+                            <input v-model="page.TemplateFileName" class="form-control" placeholder="index.html">
+                            <div class="dropdown border-top border-bottom border-end">
+                                <button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-item" role="button" @click="page.TemplateFileName = ''">Default (index.html)</li>
+                                    <li class="dropdown-item" role="button" @click="page.TemplateFileName = 'index.php'">PHP (index.php)</li>
+                                </ul>
+                            </div>
+                        </div>    
+                    </div>
                 </div>
+                
                 
                 <div class="card" v-if="page.Id">
                     <div class="card-header">Content</div>

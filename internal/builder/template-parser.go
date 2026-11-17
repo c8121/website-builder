@@ -135,7 +135,7 @@ func (p *TemplateParser) InsertMainNav(page *entity.Page) error {
 			pageTreeBinder := NewPageTreeBinder(page, p.Config)
 
 			parsed := &bytes.Buffer{}
-			err := pageTreeBinder.Bind(template, parsed)
+			err := pageTreeBinder.Bind(template, parsed, entity.VisibilityDefault)
 			if err != nil {
 				slog.Warn("Failed to bind", "error", err)
 			} else {

@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"log/slog"
+
 	"github.com/c8121/website-builder/internal/entity"
 )
 
@@ -15,14 +17,16 @@ type TreeItem struct {
 }
 
 type PageTree struct {
-	Page   *entity.Page
-	Config *BuildConfig
+	Page              *entity.Page
+	Config            *BuildConfig
+	IncludeVisibility int
 }
 
-func NewPageTree(page *entity.Page, config *BuildConfig) *PageTree {
+func NewPageTree(page *entity.Page, config *BuildConfig, visibility int) *PageTree {
 	return &PageTree{
-		Page:   page,
-		Config: config,
+		Page:              page,
+		Config:            config,
+		IncludeVisibility: visibility,
 	}
 }
 
@@ -37,13 +41,19 @@ func (p *PageTree) LoadPageTree(start *entity.Page) (*TreeItem, error) {
 		return nil, err
 	}
 
-	childTreeItems := make([]*TreeItem, len(children))
-	for i, child := range children {
+	childTreeItems := make([]*TreeItem, 0)
+	for _, child := range children {
+
+		if child.Visibility != 0 && (child.Visibility&p.IncludeVisibility == 0) {
+			slog.Info("Ignore page", "page", child.Id, "visibility", child.Visibility)
+			continue
+		}
+
 		childTreeItem, err := p.LoadPageTree(&child)
 		if err != nil {
 			return nil, err
 		}
-		childTreeItems[i] = childTreeItem
+		childTreeItems = append(childTreeItems, childTreeItem)
 	}
 
 	path, err := GetPageDirectoryPath(start)

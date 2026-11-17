@@ -9,11 +9,23 @@ import (
 	"github.com/c8121/go_vue_spa/util"
 )
 
+const (
+	// VisibilityDefault shows item in main nav
+	VisibilityDefault = 1
+	// VisibilitySitemapOnly shows item in sitemap but not on main nav
+	VisibilitySitemapOnly = 2
+	// VisibilityHidden hides item main nav and also hides in sitemap, but directory and content will be created
+	VisibilityHidden = 4
+	// VisibilityIgnore completely ignores the item (hidden in main nav and sitemap, no contents will be created)
+	VisibilityIgnore = 8
+)
+
 type Page struct {
-	Id       int64
-	ParentId int64  `dbe:"Index"`
-	Name     string `dbe:"Size: 1024, Index"`
-	Sort     int64
+	Id         int64
+	ParentId   int64  `dbe:"Index"`
+	Name       string `dbe:"Size: 1024, Index"`
+	Visibility int
+	Sort       int64
 
 	TemplateFileName string
 }
@@ -122,19 +134,22 @@ func LoadPagePath(session *go_db_entities.Session, pageId int64) ([]Page, error)
 
 }
 
-func WalkPages(session *go_db_entities.Session, handler func(page *Page)) error {
+func WalkPages(session *go_db_entities.Session, handler func(page *Page) bool) error {
 	return walkPages(session, 0, handler)
 }
 
-func walkPages(session *go_db_entities.Session, parentId int64, handler func(page *Page)) error {
+func walkPages(session *go_db_entities.Session, parentId int64, handler func(page *Page) bool) error {
 	children, err := ListPages(session, parentId)
 	if err != nil {
 		return err
 	}
 
 	for _, child := range children {
-		handler(&child)
-		util.LogError(walkPages(session, child.Id, handler))
+
+		walkChildren := handler(&child)
+		if walkChildren {
+			util.LogError(walkPages(session, child.Id, handler))
+		}
 	}
 
 	return nil

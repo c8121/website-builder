@@ -106,7 +106,12 @@ func (b *Builder) Build() {
 
 	session := entity.NewSession()
 
-	util.LogError(entity.WalkPages(session, func(page *entity.Page) {
+	util.LogError(entity.WalkPages(session, func(page *entity.Page) bool {
+
+		if page.Visibility == entity.VisibilityIgnore {
+			slog.Info("Ignore page", "id", page.Id)
+			return false
+		}
 
 		var outputDir string
 		var err error
@@ -117,7 +122,7 @@ func (b *Builder) Build() {
 			outputDir, err = GetPageDirectoryPath(page)
 			if err != nil {
 				slog.Error("Failed to get path", "path", outputDir, "err", err)
-				return
+				return false
 			}
 		}
 
@@ -125,38 +130,40 @@ func (b *Builder) Build() {
 		err = os.MkdirAll(outputDir, b.Config.FileMode)
 		if err != nil {
 			slog.Error("Failed to get path", "path", outputDir, "err", err)
-			return
+			return false
 		}
 
 		templateParser, templateFile, err := b.CreateTemplateParser(page)
 		if err != nil {
 			slog.Error("Failed to create parser", "path", outputDir, "err", err)
-			return
+			return false
 		}
 
 		err = templateParser.InsertContent(page)
 		if err != nil {
 			slog.Error("Failed to parse", "path", outputDir, "err", err)
-			return
+			return true
 		}
 
 		err = templateParser.InsertMainNav(page)
 		if err != nil {
 			slog.Error("Failed to insert main nav", "path", outputDir, "err", err)
-			return
+			return true
 		}
 
 		err = templateParser.PostProcess(page)
 		if err != nil {
 			slog.Error("Failed to parse document", "path", outputDir, "err", err)
-			return
+			return true
 		}
 
 		outputFile := filepath.Join(outputDir, filepath.Base(templateFile))
 		err = templateParser.Save(outputFile)
 		if err != nil {
 			slog.Error("Failed to save", "path", outputDir, "err", err)
-			return
+			return false
 		}
+
+		return true
 	}))
 }
