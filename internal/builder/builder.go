@@ -26,7 +26,14 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		return nil, os.ErrNotExist
 	}
 
+	siteConfig, err := entity.ListSiteConfig(entity.NewSession())
+	if err != nil {
+		return nil, err
+	}
+	configMap := entity.SiteConfigAsMap(siteConfig)
+
 	config := &BuildConfig{
+		SiteConfig:              configMap,
 		FileMode:                0740,
 		OutputBaseDir:           outputDir,
 		TemplateDir:             templateDir,
@@ -34,7 +41,7 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 	}
 
 	assetsOutputDir := filepath.Join(outputDir, "assets")
-	err := util.CreateDirIfNotExists(assetsOutputDir, config.FileMode)
+	err = util.CreateDirIfNotExists(assetsOutputDir, config.FileMode)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 type BuildConfig struct {
+	SiteConfig              map[string]string
 	FileMode                os.FileMode
 	OutputBaseDir           string
 	TemplateDir             string

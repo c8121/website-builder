@@ -3,29 +3,18 @@ package builder
 import (
 	"log/slog"
 	"os"
-
-	"github.com/c8121/website-builder/internal/entity"
 )
 
 type TemplatePreprocessor struct {
 	Config    *BuildConfig
 	Templates map[string][]byte
-
-	siteConfig map[string]string
 }
 
 func NewTemplatePreprocessor(config *BuildConfig) (*TemplatePreprocessor, error) {
 
-	siteConfig, err := entity.ListSiteConfig(entity.NewSession())
-	if err != nil {
-		return nil, err
-	}
-	configMap := entity.SiteConfigAsMap(siteConfig)
-
 	return &TemplatePreprocessor{
-		Config:     config,
-		Templates:  make(map[string][]byte),
-		siteConfig: configMap,
+		Config:    config,
+		Templates: make(map[string][]byte),
 	}, nil
 }
 
@@ -42,7 +31,7 @@ func (pt *TemplatePreprocessor) Preprocess(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	processed := ReplacePlaceholders(string(content), pt.siteConfig)
+	processed := ReplacePlaceholders(string(content), pt.Config.SiteConfig)
 	processed = ReplacePhpBlocks(processed)
 	processedBytes := []byte(processed)
 

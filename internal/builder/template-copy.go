@@ -2,13 +2,10 @@ package builder
 
 import (
 	"errors"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/c8121/go_vue_spa/util"
 )
 
 type TemplateCopy struct {
@@ -72,25 +69,19 @@ func (c *TemplateCopy) isTemplateFile(path string) (bool, error) {
 
 func (c *TemplateCopy) copyFile(src string, dest string) error {
 
-	reader, err := os.Open(src)
+	content, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
-	defer util.CloseOrLog(reader)
 
-	f, err := os.Create(dest)
+	processed := ReplacePlaceholders(string(content), c.Config.SiteConfig)
+	processed = ReplacePhpBlocks(processed)
+	processedBytes := []byte(processed)
+
+	err = os.WriteFile(dest, processedBytes, c.Config.FileMode)
 	if err != nil {
 		return err
 	}
-	defer util.CloseOrLog(f)
 
-	var buf []byte = nil
-	var w io.Writer = f
-	var r io.Reader = reader
-
-	if _, err = io.CopyBuffer(w, r, buf); err != nil {
-		return err
-	}
-
-	return f.Sync()
+	return nil
 }
