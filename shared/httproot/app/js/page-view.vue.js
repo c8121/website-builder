@@ -15,7 +15,7 @@ export default {
                 </div>
                 
                 <div class="row mb-4">
-                    <div class="col">
+                    <div class="col-md mb-2">
                         <div class="input-group">
                             <label class="input-group-text">Visibility</label>
                             <select v-model="page.Visibility" class="form-select">
@@ -27,7 +27,7 @@ export default {
                             </select>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-md mb-2">
                         <div class="input-group">
                             <label class="input-group-text">Template</label>
                             <input v-model="page.TemplateFileName" class="form-control" placeholder="index.html">
