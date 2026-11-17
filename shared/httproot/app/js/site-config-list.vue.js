@@ -5,10 +5,11 @@ export default {
         <div>
             <table class="table">
                 <tbody>
-                    <tr v-for="(item, index) in list" role="button">
+                    <tr v-for="(item, index) in list" @click="itemClicked(item)" role="button">
                         <td>{{ item.Id }}</td>
-                        <td><input v-model="item.Name" class="form-control"></td>
-                        <td><input v-model="item.Value" class="form-control"></td>
+                        <td>{{ item.Name }}</td>
+                        <td>{{ item.ContentType }}</td>
+                        <td>{{ item.Value }}</td>
                         <td class="text-end text-nowrap">
                             <button @click.stop="move(index, -1)" v-if="index > 0" class="btn btn-sm m-0 p-0" title="Move up"><i class="bi bi-arrow-up-circle"></i></button>
                             <button @click.stop="move(index, 1)" v-if="index < list.length - 1" class="btn btn-sm m-0 p-0 ms-1" title="Move down"><i class="bi bi-arrow-down-circle"></i></button>
@@ -18,8 +19,7 @@ export default {
                 </tbody>
             </table>
             <div class="mt-4">
-                <button class="btn btn-primary" @click="saveItems">Save</button>
-                <button class="btn btn-secondary ms-2" @click="addItem">Add Config</button>
+                <button class="btn btn-primary" @click="addConfig">Add Config</button>
             </div>
         </div>
     `,
@@ -44,7 +44,7 @@ export default {
             const requestOptions = {
                 method: 'GET'
             }
-            fetch('/sitesconfigs/list', requestOptions)
+            fetch('/siteconfig/list', requestOptions)
                 .then(res => res.json())
                 .then(json => {
                     self.list.splice(0, self.list.length);
@@ -73,7 +73,7 @@ export default {
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({Ids: ids})
             }
-            fetch('/sitesconfig/reorder', requestParams)
+            fetch('/siteconfig/reorder', requestParams)
                 .finally(() => self.loadItems());
         },
 
@@ -88,39 +88,17 @@ export default {
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: "id=" + encodeURI(item.Id)
             }
-            fetch('/sitesconfig/delete', requestParams)
+            fetch('/siteconfig/delete', requestParams)
                 .finally(() => self.loadItems());
         },
 
-        addItem() {
-            const self = this;
-            const requestParams = {
-                method: 'POST',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({Name: "name", Value: "value"})
-            }
-            fetch('/sitesconfig/add', requestParams)
-                .finally(() => self.loadItems());
+        itemClicked(item) {
+            this.$emit('componentEvent', 'siteConfigClick', 'site-config-list', item);
         },
 
-        saveItem(item) {
-            const requestParams = {
-                method: 'POST',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(item)
-            }
-            return fetch('/sitesconfig/add', requestParams)
+        addConfig() {
+            this.$emit('componentEvent', 'addConfig', 'site-config-list');
         },
-
-        saveItems() {
-            const self = this;
-            const fetches = [];
-            for( const item of this.list) {
-                fetches.push(this.saveItem(item));
-            }
-            Promise.all(fetches)
-                .finally(() => self.loadItems());
-        }
     },
 
     emits: ['componentEvent'],

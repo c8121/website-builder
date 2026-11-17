@@ -7,10 +7,11 @@ import (
 )
 
 type SiteConfig struct {
-	Id    int64
-	Name  string
-	Value string
-	Sort  int64
+	Id          int64
+	Name        string
+	Value       string
+	ContentType string
+	Sort        int64
 }
 
 func (s *SiteConfig) GetEntityName() string {

@@ -96,6 +96,7 @@
     import PageContentView from './js/page-content-view.vue.js'
     import PageContentList from './js/page-content-list.vue.js'
     import SiteConfigList from './js/site-config-list.vue.js'
+    import SiteConfigView from './js/site-config-view.vue.js'
 
     import HrefInput from './js/href-input.vue.js'
     import NeikiEditor from './js/neiki-editor/neiki-editor.vue.js'
@@ -112,6 +113,8 @@
         {path: '/content/new/:pageId', component: PageContentView, props: true},
 
         {path: '/config', component: SiteConfigList, props: true},
+        {path: '/config/:id', component: SiteConfigView, props: true},
+        {path: '/config/new', component: SiteConfigView, props: true},
     ];
 
     export const router = createRouter({
@@ -171,6 +174,17 @@
                     case 'addContent': {
                         const page = arguments[2]
                         location.hash = '/content/new/' + page.Id;
+                        break;
+                    }
+
+                    case 'siteConfigClick': {
+                        const config = arguments[2]
+                        location.hash = '/config/' + config.Id;
+                        break;
+                    }
+
+                    case 'addConfig': {
+                        location.hash = '/config/new/';
                         break;
                     }
 

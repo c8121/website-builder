@@ -27,9 +27,9 @@ export default {
                     <input v-model="content.Name" class="form-control">
                 </div>
                 
-                <div class="row">
+                <div class="row mb-4">
                     <div class="col">
-                        <div class="input-group mb-4">
+                        <div class="input-group">
                             <label class="input-group-text">Type</label>
                             <select v-model="selectedEditor" class="form-select">
                                 <option :value="null"></option>
@@ -38,7 +38,7 @@ export default {
                         </div>
                     </div>
                     <div class="col">
-                        <div class="input-group mb-4">
+                        <div class="input-group">
                             <label class="input-group-text">Slot</label>
                             <select v-model="content.Slot" class="form-select">
                                 <option value=""></option>

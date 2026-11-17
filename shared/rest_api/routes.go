@@ -22,11 +22,11 @@ func CreateRoutes(router *gin.Engine) {
 	router.POST("/content/delete", auth.UserAuthRequiredHandler(DeletePageContent))
 	router.POST("/content/reorder", auth.UserAuthRequiredHandler(ReorderPageContents))
 
-	router.GET("/sitesconfigs/list", auth.UserAuthRequiredHandler(ListSiteConfig))
+	router.GET("/siteconfig/list", auth.UserAuthRequiredHandler(ListSiteConfig))
 
-	router.GET("/sitesconfig/:id", auth.UserAuthRequiredHandler(GetSiteConfig))
-	router.POST("/sitesconfig/add", auth.UserAuthRequiredHandler(AddSiteConfig))
-	router.POST("/sitesconfig/delete", auth.UserAuthRequiredHandler(DeleteSiteConfig))
-	router.POST("/sitesconfig/reorder", auth.UserAuthRequiredHandler(ReorderSiteConfigs))
+	router.GET("/siteconfig/:id", auth.UserAuthRequiredHandler(GetSiteConfig))
+	router.POST("/siteconfig/add", auth.UserAuthRequiredHandler(AddSiteConfig))
+	router.POST("/siteconfig/delete", auth.UserAuthRequiredHandler(DeleteSiteConfig))
+	router.POST("/siteconfig/reorder", auth.UserAuthRequiredHandler(ReorderSiteConfigs))
 
 }
