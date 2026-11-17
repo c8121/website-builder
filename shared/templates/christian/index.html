@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{{ Title }} | {{ SubTitle }}</title>
+
+    <link href="/css/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/app.css" rel="stylesheet"/>
+
+</head>
+<body>
+
+<div class="background"></div>
+
+<div id="container">
+
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/">{{ Title }}</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse main-nav" id="navbarSupportedContent">
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li v-for="child in Children" class="nav-item">
+                        <a class="nav-link active" aria-current="page" :href="child.IsHomePage ? '/' : child.Path">{{ child.Name }}</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <div id="main-content" class="md page-content">
+
+        <div class="tpl Text Html Markdown">
+            <h1 v-if="Meta.Sort == 1">{{ Meta.Name }}</h1>
+            <h2 v-else>{{ Meta.Name }}</h2>
+            <div v-if="Meta.ContentType == 'Text'" style="white-space: pre-line">{{ Content.text }}</div>
+            <div v-if="Meta.ContentType == 'Html'" v-html="Content.text"></div>
+            <div v-if="Meta.ContentType == 'Markdown'" v-html="Content.text | md2html"></div>
+        </div>
+
+        <div class="tpl Image">
+            <h1 v-if="Meta.Sort == 1">{{ Meta.Name }}</h1>
+            <h2 v-else>{{ Meta.Name }}</h2>
+            <div>
+                <a v-if="Content.href" :href="Content.href">
+                    <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
+                    <div v-if="Content.alt">{{ Content.alt }}</div>
+                </a>
+                <template v-else>
+                    <div><img :src="Content.src | asset" :alt="Content.alt"/></div>
+                    <div v-if="Content.alt">{{ Content.alt }}</div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="footer">
+        {{ Footer }}
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="/css/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
