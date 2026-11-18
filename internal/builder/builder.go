@@ -154,9 +154,15 @@ func (b *Builder) Build() {
 			return false
 		}
 
+		err = templateParser.InsertPageData(page)
+		if err != nil {
+			slog.Error("Failed to insert page data", "path", outputDir, "err", err)
+			return true
+		}
+
 		err = templateParser.InsertContent(page)
 		if err != nil {
-			slog.Error("Failed to parse", "path", outputDir, "err", err)
+			slog.Error("Failed to insert content", "path", outputDir, "err", err)
 			return true
 		}
 

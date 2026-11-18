@@ -15,6 +15,7 @@ const (
 	SlotCssClassPrefix = "slot-"
 	DefaultSlotName    = "default"
 
+	PageDataSelector              = ".page-data"
 	PageContentSelector           = ".page-content"
 	MainNavSelector               = ".main-nav"
 	ContentTemplateSelectorPrefix = ".tpl."
@@ -45,6 +46,33 @@ func NewTemplateParserFromFile(template []byte, config *BuildConfig) (*TemplateP
 		goquery.NewDocumentFromNode(root),
 		config,
 	)
+}
+
+func (p *TemplateParser) InsertPageData(page *entity.Page) error {
+
+	p.doc.Find(PageDataSelector).Each(func(i int, s *goquery.Selection) {
+
+		template, err := s.Html()
+		if err != nil {
+			slog.Warn("Failed to get template to insert page data", "error", err)
+			return
+		}
+
+		if template != "" {
+			parsed := &bytes.Buffer{}
+			err = p.Config.JsonBinder.BindData(template, page, parsed)
+			if err == nil {
+				s.Empty()
+				s.AppendHtml(parsed.String())
+			} else {
+				slog.Warn("Failed to insert page data", "error", err)
+			}
+		} else {
+			slog.Warn("Skip empty page-data element", "page", i)
+		}
+	})
+
+	return nil
 }
 
 func (p *TemplateParser) InsertContent(page *entity.Page) error {

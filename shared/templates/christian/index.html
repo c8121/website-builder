@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>{{ Title }} | {{ SubTitle }}</title>
+    <title class="page-data">{{ Name }}</title>
 
     <link href="/css/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/app.css" rel="stylesheet"/>
@@ -67,7 +67,8 @@
     </div>
 
     <div id="footer">
-        {{ Footer }}
+        <div>{{ Footer }}</div>
+        <div class="page-data text-bg-light small p-2">[{{ Title }}]: [{{ Name }}]</div>
     </div>
 </div>
 
