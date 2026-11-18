@@ -1,8 +1,9 @@
 package builder
 
 import (
-	"errors"
+	"fmt"
 	"log/slog"
+	"reflect"
 	"strings"
 
 	"github.com/c8121/website-builder/internal/builder/converter"
@@ -12,6 +13,8 @@ type TemplateFunctions struct {
 	Config      *BuildConfig
 	FunctionMap map[string]any
 }
+
+var errorType = reflect.TypeOf((*error)(nil)).Elem()
 
 func NewTemplateFunctions(config *BuildConfig) *TemplateFunctions {
 
@@ -49,19 +52,15 @@ func NewTemplateFunctions(config *BuildConfig) *TemplateFunctions {
 	}
 }
 
-func (f *TemplateFunctions) Invoke(functionName string, arg string) (string, error) { //TODO variable args
+func (f *TemplateFunctions) Invoke(expression string, subject any) (string, error) {
 
-	slog.Info("** Invoke", "function", functionName, "arg", arg)
-
-	function, exists := f.FunctionMap[functionName]
-	if !exists {
-		return "", errors.New("function not found: " + functionName)
+	fn, err := NewFunctionExpression(expression, subject)
+	if err != nil {
+		return "", err
 	}
-
-	fn, ok := function.(func(string) string)
-	if !ok {
-		return "", errors.New("Invalid function signature: " + functionName)
+	result, err := fn.InvokeFunctionExpression(f.FunctionMap)
+	if err != nil {
+		return "", err
 	}
-
-	return fn(arg), nil
+	return fmt.Sprintf("%s", result), nil
 }

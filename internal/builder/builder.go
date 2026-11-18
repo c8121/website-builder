@@ -40,7 +40,7 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		DefaultTemplateFileName: "index.html",
 	}
 
-	assetsOutputDir := filepath.Join(outputDir, "assets")
+	assetsOutputDir := filepath.Join(outputDir, "media")
 	err = util.CreateDirIfNotExists(assetsOutputDir, config.FileMode)
 	if err != nil {
 		return nil, err

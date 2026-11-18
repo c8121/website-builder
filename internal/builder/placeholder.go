@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	placeholderRe     = regexp.MustCompile(`\{\{\s*([A-Za-z_][\w.\-| ]*)\s*\}\}`)
+	placeholderRe     = regexp.MustCompile(`\{\{\s*([A-Za-z_][^}]*)\s*}}`)
 	phpBlockRe        = regexp.MustCompile(`(?s)<\?(?:php|=)?.*?\?>`)
 	phpRestoreBlockRe = regexp.MustCompile(`(?s)<php>(.*?)</php>`)
 )
@@ -30,16 +30,20 @@ func NewPlaceholder(templateFunctions *TemplateFunctions) *Placeholder {
 func (p *Placeholder) ReplacePlaceholders(s string, data map[string]string) string {
 	return placeholderRe.ReplaceAllStringFunc(s, func(match string) string {
 		placeholder := placeholderRe.FindStringSubmatch(match)[1]
-		fieldName, functionName := p.parsePlaceholder(placeholder)
+		fieldName, function := p.parsePlaceholder(placeholder)
 
 		if val, ok := data[fieldName]; ok {
 
-			if functionName != "" {
+			if function != "" {
+
+				if !strings.HasSuffix(function, ")") {
+					function = function + "()"
+				}
+
 				var err error
-				val, err = p.templateFunctions.Invoke(functionName, val)
+				val, err = p.templateFunctions.Invoke(function, val)
 				if err != nil {
-					slog.Error("Failed to invoke", "field", fieldName, "function", functionName, "error", err)
-					return err.Error()
+					slog.Warn("Failed to invoke function", "function", function, "err", err)
 				}
 			}
 
