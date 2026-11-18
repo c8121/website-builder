@@ -31,8 +31,8 @@ func (pt *TemplatePreprocessor) Preprocess(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	processed := ReplacePlaceholders(string(content), pt.Config.SiteConfig)
-	processed = ReplacePhpBlocks(processed)
+	processed := pt.Config.Placeholder.ReplacePlaceholders(string(content), pt.Config.SiteConfig)
+	processed = pt.Config.Placeholder.ReplacePhpBlocks(processed)
 	processedBytes := []byte(processed)
 
 	pt.Templates[path] = processedBytes

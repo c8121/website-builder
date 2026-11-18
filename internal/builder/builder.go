@@ -51,7 +51,15 @@ func NewBuilder(templateDir string, outputDir string) (*Builder, error) {
 		assetsOutputDir,
 	)
 
-	config.JsonBinder = NewJsonBinder(config.AssetLoader)
+	config.TemplateFunctions = NewTemplateFunctions(
+		config,
+	)
+
+	config.Placeholder = NewPlaceholder(
+		config.TemplateFunctions,
+	)
+
+	config.JsonBinder = NewJsonBinder(config.TemplateFunctions)
 
 	preprocessor, err := NewTemplatePreprocessor(config)
 	if err != nil {

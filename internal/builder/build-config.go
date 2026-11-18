@@ -7,12 +7,14 @@ import (
 )
 
 type BuildConfig struct {
-	SiteConfig              map[string]string
+	SiteConfig              map[string]string //contains entity.SiteConfig as map
 	FileMode                os.FileMode
 	OutputBaseDir           string
 	TemplateDir             string
 	DefaultTemplateFileName string
 	AssetLoader             *AssetLoader
+	TemplateFunctions       *TemplateFunctions
+	Placeholder             *Placeholder
 	JsonBinder              *JsonBinder
 
 	HomePage *entity.Page

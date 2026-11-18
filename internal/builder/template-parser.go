@@ -14,6 +14,10 @@ import (
 const (
 	SlotCssClassPrefix = "slot-"
 	DefaultSlotName    = "default"
+
+	PageContentSelector           = ".page-content"
+	MainNavSelector               = ".main-nav"
+	ContentTemplateSelectorPrefix = ".tpl."
 )
 
 // TemplateParser takes a html-template and inserts content of pages (entity.Page)
@@ -61,7 +65,7 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
 		slog.Info("Create content", "id", content.Id, "name", content.Name, "type", content.ContentType, "slot", slot)
 
-		_, contentTemplate := selectHtml(p.doc, ".tpl."+content.ContentType)
+		_, contentTemplate := selectHtml(p.doc, ContentTemplateSelectorPrefix+content.ContentType)
 
 		if contentTemplate == "" {
 			slog.Warn("No template found", "id", content.Id, "name", content.Name, "type", content.ContentType)
@@ -80,7 +84,7 @@ func (p *TemplateParser) InsertContent(page *entity.Page) error {
 
 	slog.Info("Insert", "page", page.Id)
 
-	p.doc.Find(".page-content").Each(func(i int, s *goquery.Selection) {
+	p.doc.Find(PageContentSelector).Each(func(i int, s *goquery.Selection) {
 
 		s.Empty()
 
@@ -124,7 +128,7 @@ func (p *TemplateParser) extractSlotName(cssClasses string) string {
 
 func (p *TemplateParser) InsertMainNav(page *entity.Page) error {
 
-	p.doc.Find(".main-nav").Each(func(i int, s *goquery.Selection) {
+	p.doc.Find(MainNavSelector).Each(func(i int, s *goquery.Selection) {
 
 		template, err := s.Html()
 		if err == nil {
@@ -178,7 +182,7 @@ func (p *TemplateParser) Save(path string) error {
 		return err
 	}
 
-	htmlContent = RestorePhpBlocks(htmlContent)
+	htmlContent = p.Config.Placeholder.RestorePhpBlocks(htmlContent)
 
 	err = os.WriteFile(path, []byte(htmlContent), p.Config.FileMode)
 	if err != nil {

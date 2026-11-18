@@ -1,7 +1,9 @@
 export default {
     template: `
         <div>
-            <neiki-editor v-model="editorContent"></neiki-editor>
+            <template v-if="this.editorContent">
+                <neiki-editor v-model="editorContent"></neiki-editor>
+            </template>
         </div>
     `,
 
