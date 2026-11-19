@@ -40,8 +40,7 @@
         <div class="toc w-100">
             <ul class="navbar-nav">
 
-                <li v-if="Page.Sort == 1" class="nav-item"><a class="nav-link" href="#start">Start</a></li>
-                <li v-else class="nav-item"><a class="nav-link" href="/">Startseite</a></li>
+                <li v-if="Page.Sort > 1" class="nav-item"><a class="nav-link" href="/">Startseite</a></li>
 
                 <template v-for="child in Children">
                 <li class="nav-item" v-for="child in child.Children"><a class="nav-link" :href="'#' + child.Name">
