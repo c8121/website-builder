@@ -11,6 +11,18 @@ body {
     padding-top: 3.375rem;
 }
 
+#background {
+    position: fixed;
+    background-image: url("/images/background.png");
+    background-repeat: no-repeat;
+    background-position: top right;
+    width: 100vw;
+    height: 100vh;
+    top: -300px;
+    right: -450px;
+    opacity: 0.2;
+}
+
 a {
     color: var(--bs-body-color)
 }
@@ -22,19 +34,19 @@ a {
     background-color: var(--main-nav-bg);
 }
 
-#mainNav .nav-link{
+#mainNav .nav-link {
     color: var(--main-nav-color);
 }
 
-#mainNav a.nav-link.active{
+#mainNav a.nav-link.active {
     color: red;
 }
 
-#mainNav .navbar-brand{
+#mainNav .navbar-brand {
     color: var(--main-nav-color);
 }
 
-#mainNav .navbar-toggler{
+#mainNav .navbar-toggler {
     color: var(--main-nav-color);
 }
 
@@ -44,6 +56,11 @@ a {
     border: 0.5rem solid rgba(255, 255, 255, 0.2);
 }
 
+#mainContent {
+    position: relative;
+    overflow-x: clip;
+    width: 100%;
+}
 
 #mainContent img {
     max-width: min(30rem, 80%);
