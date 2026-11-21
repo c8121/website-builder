@@ -75,7 +75,6 @@ func (c *TemplateCopy) copyFile(src string, dest string) error {
 	}
 
 	processed := c.Config.Placeholder.ReplacePlaceholders(string(content), c.Config.SiteConfig)
-	processed = c.Config.Placeholder.ReplacePhpBlocks(processed)
 	processedBytes := []byte(processed)
 
 	err = os.WriteFile(dest, processedBytes, c.Config.FileMode)
