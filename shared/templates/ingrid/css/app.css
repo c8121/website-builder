@@ -11,6 +11,12 @@ body {
     padding-top: 3.375rem;
 }
 
+#page-canvas {
+    max-width: 1400px;
+    margin: auto;
+    position: relative;
+}
+
 #background {
     position: fixed;
     background-image: url("/images/background.png");
@@ -19,7 +25,6 @@ body {
     width: 100vw;
     height: 100vh;
     top: -300px;
-    right: -450px;
     opacity: 0.2;
 }
 
@@ -27,11 +32,16 @@ a {
     color: var(--bs-body-color)
 }
 
+hr {
+    color: #ddd;
+}
+
 #mainNav {
     padding-left: 1rem;
     padding-right: 1rem;
     color: var(--main-nav-color);
     background-color: var(--main-nav-bg);
+    z-index: 1030;
 }
 
 #mainNav .nav-link {
@@ -88,7 +98,10 @@ section {
 @media (min-width: 992px) {
     body {
         padding-top: 0;
-        padding-left: var(--navbar-width);
+    }
+
+    #background {
+        right: -450px;
     }
 
     #mainNav {
@@ -97,7 +110,6 @@ section {
         text-align: center;
         position: fixed;
         top: 0;
-        left: 0;
         display: flex;
         flex-direction: column;
         width: var(--navbar-width);
@@ -126,6 +138,10 @@ section {
     #mainNav ul {
         flex-direction: column;
         width: 100%;
+    }
+
+    #mainContent {
+        padding-left: var(--navbar-width);
     }
 
     .desktop-only {
