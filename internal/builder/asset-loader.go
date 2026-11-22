@@ -96,6 +96,12 @@ func (a *AssetLoader) CopyAsset(url string) (string, error) {
 	if err != nil {
 
 		if errors.Is(err, os.ErrExist) {
+
+			err = os.Remove(temp)
+			if err != nil {
+				slog.Warn("Error removing temp file", "error", err)
+			}
+
 			slog.Info("File already exists", "dest", dest)
 			return dest, nil
 		}
