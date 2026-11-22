@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -74,6 +75,11 @@ func (a *AssetLoader) CopyAsset(url string) (string, error) {
 		return a.DownloadAsset(url)
 	}
 
+	temp, err := a.DownloadAsset(url)
+	if err != nil {
+		return "", err
+	}
+
 	meta, err := a.DownloadAssetMetaData(hash)
 	if err != nil {
 		slog.Warn("Error downloading asset meta", "error", err)
@@ -86,18 +92,19 @@ func (a *AssetLoader) CopyAsset(url string) (string, error) {
 		name = hash
 	}
 
-	dest, err := a.GetDestinationName(name)
+	dest, err := a.GetDestinationName(temp, name)
 	if err != nil {
+
+		if errors.Is(err, os.ErrExist) {
+			slog.Info("File already exists", "dest", dest)
+			return dest, nil
+		}
+
 		slog.Warn("Error getting destination", "error", err)
 		return a.DownloadAsset(url)
 	}
 
 	slog.Info("Inserting asset", "hash", hash, "dest", dest)
-
-	temp, err := a.DownloadAsset(url)
-	if err != nil {
-		return "", err
-	}
 
 	err = os.Rename(temp, dest)
 	if err != nil {
@@ -110,24 +117,71 @@ func (a *AssetLoader) CopyAsset(url string) (string, error) {
 }
 
 // GetDestinationName generates a unique name for the asset, using the given name as template
-func (a *AssetLoader) GetDestinationName(name string) (string, error) {
+func (a *AssetLoader) GetDestinationName(file string, name string) (string, error) {
 
 	name = NormalizeAsFileName(name, fmt.Sprintf("asset-%d", time.Now().UnixNano()))
 	basename, extension := a.splitName(name)
 
 	num := 0
-	path := filepath.Join(a.outputBaseDir, name)
-	for a.checkExists(path) {
+	destPath := filepath.Join(a.outputBaseDir, name)
+	for a.checkExists(destPath) {
+
+		if a.isSameFile(file, destPath) {
+			return destPath, os.ErrExist
+		}
+
 		num++
 		if num > 1000 {
 			return "", errors.New("too many files")
 		}
-		path = filepath.Join(a.outputBaseDir, fmt.Sprintf("%s(%d).%s", basename, num, extension))
+		destPath = filepath.Join(a.outputBaseDir, fmt.Sprintf("%s(%d).%s", basename, num, extension))
 	}
 
-	return path, nil
+	return destPath, nil
 }
 
+func (a *AssetLoader) isSameFile(name1 string, name2 string) bool {
+
+	stat1, err := os.Stat(name1)
+	if err != nil {
+		slog.Warn("Error stating asset file", "error", err)
+		return false
+	}
+
+	stat2, err := os.Stat(name2)
+	if err != nil {
+		slog.Warn("Error stating asset file", "error", err)
+		return false
+	}
+
+	if stat1.Size() != stat2.Size() {
+		return false
+	}
+
+	hash1 := a.getHash(name1)
+	hash2 := a.getHash(name2)
+
+	return hash1 == hash2 && hash1 != ""
+}
+
+func (a *AssetLoader) getHash(name string) string {
+	f, err := os.Open(name)
+	if err != nil {
+		slog.Warn("Error opening asset file", "error", err)
+		return ""
+	}
+	defer util.CloseOrLog(f)
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		slog.Warn("Error reading asset file", "error", err)
+		return ""
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+// splitName splits file name and extension: <name>.<extension>
 func (a *AssetLoader) splitName(name string) (string, string) {
 	p := strings.LastIndexByte(name, '.')
 	if p < 0 {
