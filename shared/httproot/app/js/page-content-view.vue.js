@@ -2,6 +2,10 @@ import {defineAsyncComponent, nextTick} from 'vue'
 
 export default {
 
+    beforeRouteLeave() {
+    },
+    beforeRouteUpdate() {
+    },
     components: {
         HtmlEditor: defineAsyncComponent(() => import('./content-editor/html.vue.js')),
         MarkdownEditor: defineAsyncComponent(() => import('./content-editor/md.vue.js')),

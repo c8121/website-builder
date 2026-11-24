@@ -144,55 +144,55 @@
 
                     case 'pageClick': {
                         const page = arguments[2]
-                        location.hash = '/page/' + page.Id;
+                        this.navigate('/page/' + page.Id);
                         break;
                     }
 
                     case 'pageSaved': {
                         const page = arguments[2]
-                        location.hash = '/page/' + page.Id;
+                            this.navigate('/page/' + page.Id);
                         this.$refs.pageTree.reload();
                         break;
                     }
 
                     case 'pageDeleted': {
-                        location.hash = '/';
+                        this.navigate('/');
                         this.$refs.pageTree.reload();
                         break;
                     }
 
                     case 'pageContentClick': {
                         const content = arguments[2]
-                        location.hash = '/content/' + content.Id;
+                        this.navigate('/content/' + content.Id);
                         break;
                     }
 
                     case 'addContent': {
                         const page = arguments[2]
-                        location.hash = '/content/new/' + page.Id;
+                        this.navigate('/content/new/' + page.Id);
                         break;
                     }
 
                     case 'pageContentSaved' : {
                         const content = arguments[2]
-                        location.hash = '/content/' + content.Id;
+                        this.navigate('/content/' + content.Id);
                         break;
                     }
 
                     case 'pageContentDeleted': {
                         const msg = arguments[2]
-                        location.hash = '/page/' + msg.PageId;
+                        this.navigate('/page/' + msg.PageId);
                         break;
                     }
 
                     case 'siteConfigClick': {
                         const config = arguments[2]
-                        location.hash = '/config/' + config.Id;
+                        this.navigate('/config/' + config.Id);
                         break;
                     }
 
                     case 'addConfig': {
-                        location.hash = '/config/new/';
+                        this.navigate('/config/new/');
                         break;
                     }
 
@@ -201,6 +201,14 @@
                         console.log(arguments);
                     }
                 }
+            },
+
+            /**
+             * Navigate via the router (instead of setting location.hash), so that the route guards
+             * of the current view can ask about unsaved changes and cleanly cancel the navigation.
+             */
+            navigate(path) {
+                this.$router.push(path);
             },
 
             loadNotifications() {
@@ -219,11 +227,11 @@
             },
 
             addPage() {
-                location.hash = '/page/new/0';
+                this.navigate('/page/new/0');
             },
 
             openConfig() {
-                location.hash = '/config';
+                this.navigate('/config');
             },
 
             startSidebarResize(e) {

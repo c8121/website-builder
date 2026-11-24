@@ -1,5 +1,9 @@
 export default {
 
+    beforeRouteLeave() {
+    },
+    beforeRouteUpdate() {
+    },
 
     template: `
         <div>

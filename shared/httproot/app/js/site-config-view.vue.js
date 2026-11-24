@@ -2,6 +2,10 @@ import {defineAsyncComponent, nextTick} from 'vue'
 
 export default {
 
+    beforeRouteLeave() {
+    },
+    beforeRouteUpdate() {
+    },
     components: {
         HtmlEditor: defineAsyncComponent(() => import('./config-editor/html.vue.js')),
         TextEditor: defineAsyncComponent(() => import('./config-editor/text.vue.js')),
