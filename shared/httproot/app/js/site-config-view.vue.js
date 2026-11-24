@@ -1,11 +1,10 @@
 import {defineAsyncComponent, nextTick} from 'vue'
+import {EditState} from './edit-state.vue.js'
 
 export default {
 
-    beforeRouteLeave() {
-    },
-    beforeRouteUpdate() {
-    },
+    mixins: [EditState],
+
     components: {
         HtmlEditor: defineAsyncComponent(() => import('./config-editor/html.vue.js')),
         TextEditor: defineAsyncComponent(() => import('./config-editor/text.vue.js')),
@@ -68,11 +67,25 @@ export default {
         }
     },
 
+    beforeRouteLeave() {
+        return this.confirmLeave();
+    },
+    beforeRouteUpdate() {
+        return this.confirmLeave();
+    },
+
     mounted() {
         this.loadSiteConfig();
     },
 
     methods: {
+
+        getState() {
+            if (!this.config)
+                return null;
+            this.updateConfig();
+            return this.config;
+        },
 
         loadSiteConfig() {
             const self = this;
@@ -90,6 +103,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.config = json;
+                        self.saveState();
                         self.loadEditor();
                     } else {
                         alert(json)
@@ -133,15 +147,18 @@ export default {
             return null;
         },
 
+        updateConfig() {
+            if (this.selectedEditor) {
+                this.config.ContentType = this.selectedEditor.name;
+                this.config.Value = this.$refs.editor.getValue();
+            }
+        },
+
         saveConfig() {
             const self = this;
             if (!self.config)
                 return;
-
-            if (self.selectedEditor) {
-                self.config.ContentType = self.selectedEditor.name;
-                self.config.Value = self.$refs.editor.getValue();
-            }
+            self.updateConfig();
 
             const requestParams = {
                 method: 'POST',
@@ -153,6 +170,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.config = json
+                        self.saveState();
                         this.$emit('componentEvent', 'siteConfigSaved', 'site-config-view', self.config);
                     } else if (json.Message) {
                         alert(json.Message)

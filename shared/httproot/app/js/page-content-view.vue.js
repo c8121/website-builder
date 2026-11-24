@@ -1,11 +1,10 @@
-import {defineAsyncComponent, nextTick} from 'vue'
+import {defineAsyncComponent} from 'vue'
+import {EditState} from './edit-state.vue.js'
 
 export default {
 
-    beforeRouteLeave() {
-    },
-    beforeRouteUpdate() {
-    },
+    mixins: [EditState],
+
     components: {
         HtmlEditor: defineAsyncComponent(() => import('./content-editor/html.vue.js')),
         MarkdownEditor: defineAsyncComponent(() => import('./content-editor/md.vue.js')),
@@ -102,11 +101,25 @@ export default {
         }
     },
 
+    beforeRouteLeave() {
+        return this.confirmLeave();
+    },
+    beforeRouteUpdate() {
+        return this.confirmLeave();
+    },
+
     mounted() {
         this.loadPageContent();
     },
 
     methods: {
+
+        getState() {
+            if (!this.content)
+                return null;
+            this.updateContent();
+            return this.content;
+        },
 
         loadPageContent() {
             const self = this;
@@ -127,6 +140,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.content = json;
+                        self.saveState();
                         self.loadEditor();
                     } else {
                         alert(json)
@@ -173,15 +187,18 @@ export default {
             return null;
         },
 
+        updateContent() {
+            if (this.selectedEditor) {
+                this.content.ContentType = this.selectedEditor.name;
+                this.content.Content = this.$refs.editor.getContent();
+            }
+        },
+
         savePageContent() {
             const self = this;
             if (!self.content)
                 return;
-
-            if (self.selectedEditor) {
-                self.content.ContentType = self.selectedEditor.name;
-                self.content.Content = self.$refs.editor.getContent();
-            }
+            self.updateContent();
 
             const requestParams = {
                 method: 'POST',
@@ -193,6 +210,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.content = json
+                        self.saveState();
                         self.$emit('componentEvent', 'pageContentSaved', 'page-content-view', self.content);
                     } else if (json.Message) {
                         alert(json.Message)

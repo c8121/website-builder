@@ -1,9 +1,8 @@
+import {EditState} from './edit-state.vue.js'
+
 export default {
 
-    beforeRouteLeave() {
-    },
-    beforeRouteUpdate() {
-    },
+    mixins: [EditState],
 
     template: `
         <div>
@@ -92,11 +91,24 @@ export default {
         }
     },
 
+    beforeRouteLeave() {
+        return this.confirmLeave();
+    },
+    beforeRouteUpdate() {
+        return this.confirmLeave();
+    },
+
     mounted() {
         this.loadPage();
     },
 
     methods: {
+
+        getState() {
+            if (!this.page)
+                return null;
+            return this.page;
+        },
 
         loadPage() {
             const self = this;
@@ -117,6 +129,7 @@ export default {
                 .then(json => {
                     if (json.Id) {
                         self.page = json;
+                        self.saveState();
                     } else {
                         alert(json)
                     }
@@ -158,7 +171,8 @@ export default {
                 .then(res => res.json())
                 .then(json => {
                     if (json.Id) {
-                        self.page = json
+                        self.page = json;
+                        this.saveState();
                         this.$emit('componentEvent', 'pageSaved', 'page-view', self.page);
                     } else if (json.Message) {
                         alert(json.Message)
